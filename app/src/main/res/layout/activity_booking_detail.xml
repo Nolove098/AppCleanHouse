@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_app_gradient"
+    tools:context=".BookingDetailActivity">
+
+    <!-- Header -->
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="16dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_chevron_right" 
+            android:rotation="180"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            app:tint="@color/text_primary"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Booking #12345"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"/>
+            
+             <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Confirmed"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/app_primary"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/header"
+        app:layout_constraintBottom_toTopOf="@+id/footerLayout">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <!-- Cleaner Info Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/white"
+                android:layout_marginBottom="24dp">
+                
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:src="@drawable/ic_profile"
+                        android:background="@drawable/bg_white_rounded"
+                        android:backgroundTint="#F0F0F0"
+                        android:layout_marginEnd="16dp"/>
+                    
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Sarah M."
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary"
+                            android:textSize="18sp"/>
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/ic_star" app:tint="@color/app_accent"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text=" 4.8" android:textStyle="bold" android:textColor="@color/text_primary"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <ImageButton
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/ic_call"
+                        android:background="@drawable/bg_white_rounded"
+                        android:backgroundTint="@color/app_primary"
+                        app:tint="@color/white"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Service Details -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Service Details"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="16dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+                <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_launcher_foreground" app:tint="@color/app_primary"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Oct 24, 2026 - 10:00 AM" android:textStyle="bold" android:textColor="@color/text_primary" android:layout_marginStart="12dp"/>
+            </LinearLayout>
+
+             <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="24dp">
+                <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_location" app:tint="@color/app_primary"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="123 Main Street, Apt 4B" android:textColor="@color/text_secondary" android:layout_marginStart="12dp"/>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Includes"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="12dp"/>
+            
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
+                <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_check" app:tint="@color/app_primary"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Living Room" android:layout_marginStart="8dp" android:textColor="@color/text_secondary"/>
+            </LinearLayout>
+             <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="24dp">
+                <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_check" app:tint="@color/app_primary"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Kitchen" android:layout_marginStart="8dp" android:textColor="@color/text_secondary"/>
+            </LinearLayout>
+
+            <!-- Payment Summary -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/app_secondary"
+                android:layout_marginBottom="24dp">
+                
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+                    
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Subtotal" android:textColor="@color/text_secondary"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="$55.00" android:textColor="@color/text_primary" android:textStyle="bold"/>
+                    </LinearLayout>
+                     <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="12dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Tax" android:textColor="@color/text_secondary"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="$5.00" android:textColor="@color/text_primary" android:textStyle="bold"/>
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/white" android:layout_marginVertical="8dp"/>
+
+                     <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Total" android:textColor="@color/text_primary" android:textSize="18sp" android:textStyle="bold"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="$60.00" android:textColor="@color/text_primary" android:textSize="20sp" android:textStyle="bold"/>
+                    </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Footer Action -->
+    <LinearLayout
+        android:id="@+id/footerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="24dp"
+        android:orientation="vertical"
+        android:background="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent">
+        
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRebook"
+            style="@style/Widget.App.Button.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="Re-book This Service"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:id="@+id/tvCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel Booking"
+            android:textColor="@android:color/darker_gray"
+            android:layout_gravity="center_horizontal"/>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
