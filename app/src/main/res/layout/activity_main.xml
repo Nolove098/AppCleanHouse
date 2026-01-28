@@ -107,7 +107,7 @@
                      <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/ic_launcher_foreground"
+                        android:src="@drawable/lock"
                         app:tint="@color/text_secondary"/> <!-- Lock icon placeholder -->
                     <EditText
                         android:id="@+id/etPassword"
@@ -174,7 +174,7 @@
                 <com.google.android.material.button.MaterialButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:icon="@drawable/ic_launcher_foreground"
+                    app:icon="@drawable/google"
                     app:iconTint="@null"
                     android:text="Google"
                     android:textColor="@color/text_primary"
@@ -188,7 +188,7 @@
                 <com.google.android.material.button.MaterialButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:icon="@drawable/ic_launcher_foreground"
+                    app:icon="@drawable/facebook"
                     app:iconTint="@null"
                     android:text="Facebook"
                     android:textColor="@color/text_primary"
