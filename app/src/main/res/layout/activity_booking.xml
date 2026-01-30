@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/app_background"
+    android:background="@color/slate_50"
     tools:context=".BookingActivity">
 
     <!-- Header -->
@@ -12,36 +12,80 @@
         android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:padding="16dp"
+        android:orientation="vertical"
+        android:background="@color/white"
+        android:padding="24dp"
+        android:paddingBottom="16dp"
+        android:elevation="2dp"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/ic_chevron_right" 
-            android:rotation="180"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Back"
-            app:tint="@color/text_primary"/>
-
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Select Date &amp; Time"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_primary"
-            android:layout_marginStart="8dp"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_chevron_right"
+                android:rotation="180"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Back"
+                app:tint="@color/slate_700" />
+
+            <TextView
+                android:id="@+id/tvStepTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Select Time"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/slate_900"
+                android:layout_marginStart="16dp" />
+        </LinearLayout>
+
+        <!-- Step Indicator -->
+        <LinearLayout
+            android:id="@+id/stepIndicator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="8dp">
+
+            <View
+                android:id="@+id/step1"
+                android:layout_width="32dp"
+                android:layout_height="6dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_step_active" />
+
+            <View
+                android:id="@+id/step2"
+                android:layout_width="8dp"
+                android:layout_height="6dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_step_inactive" />
+
+            <View
+                android:id="@+id/step3"
+                android:layout_width="8dp"
+                android:layout_height="6dp"
+                android:background="@drawable/bg_step_inactive" />
+        </LinearLayout>
     </LinearLayout>
 
+    <!-- Content Container -->
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/contentScroll"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:fillViewport="true"
         app:layout_constraintTop_toBottomOf="@id/header"
-        app:layout_constraintBottom_toTopOf="@+id/footerLayout">
+        app:layout_constraintBottom_toTopOf="@id/btnContinue">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -49,193 +93,181 @@
             android:orientation="vertical"
             android:padding="24dp">
 
-            <!-- Calendar Placeholder -->
-            <CalendarView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"/>
-             <!-- <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="[Calendar Component Temporarily Disabled]"
-                android:layout_marginBottom="24dp"/> -->
-            
-            <!-- Time Slots -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Available Slots"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary"
-                android:layout_marginBottom="16dp"/>
-
+            <!-- Step 1: Date & Time Selection -->
             <LinearLayout
+                android:id="@+id/step1Content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="24dp">
-                
-                <!-- Slot 1 (Selected) -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="08:00 AM"
-                    android:textColor="@color/white"
-                    android:background="@drawable/bg_time_slot_selected"
-                    android:paddingHorizontal="20dp"
-                    android:paddingVertical="10dp"
-                    android:layout_marginEnd="8dp"/>
+                android:orientation="vertical"
+                android:visibility="visible">
 
-                <!-- Slot 2 -->
+                <!-- Date Selection -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="10:00 AM"
-                    android:textColor="@color/text_primary"
-                    android:background="@drawable/bg_time_slot_available"
-                    android:paddingHorizontal="20dp"
-                    android:paddingVertical="10dp"
-                    android:layout_marginEnd="8dp"/>
-                
-                 <!-- Slot 3 -->
+                    android:text="SELECT DATE"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/slate_900"
+                    android:letterSpacing="0.1"
+                    android:layout_marginBottom="16dp" />
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:layout_marginBottom="32dp">
+
+                    <LinearLayout
+                        android:id="@+id/dateContainer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" />
+                </HorizontalScrollView>
+
+                <!-- Time Selection -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="12:00 PM"
-                    android:textColor="@color/text_primary"
-                    android:background="@drawable/bg_time_slot_available"
-                    android:paddingHorizontal="20dp"
-                    android:paddingVertical="10dp"/>
+                    android:text="SELECT TIME"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/slate_900"
+                    android:letterSpacing="0.1"
+                    android:layout_marginBottom="16dp" />
+
+                <GridLayout
+                    android:id="@+id/timeContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:columnCount="2"
+                    android:rowCount="2"
+                    android:alignmentMode="alignMargins" />
             </LinearLayout>
 
-            <!-- Duration Slider -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Duration (Hours)"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary"
-                android:layout_marginBottom="8dp"/>
-
-            <!-- Replacing Material Slider with SeekBar to avoid potential crashes and ensure stability -->
-            <SeekBar
+            <!-- Step 2: Details -->
+            <LinearLayout
+                android:id="@+id/step2Content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:max="5"
-                android:progress="2"
-                android:progressTint="@color/app_primary"
-                android:thumbTint="@color/app_primary"
-                android:layout_marginBottom="24dp"/>
-             <!-- <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="[Slider Component Temporarily Disabled]"
-                android:layout_marginBottom="24dp"/> -->
+                android:orientation="vertical"
+                android:visibility="gone">
 
-            <!-- Address Section -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Address"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary"
-                android:layout_marginBottom="12dp"/>
-            
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
-                app:cardBackgroundColor="@color/white"
-                app:strokeColor="@color/app_secondary"
-                app:strokeWidth="1dp"
-                app:cardElevation="0dp">
-                
+                <!-- Location Card -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="@color/white"
+                    android:layout_marginBottom="24dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="24dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="16dp">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_location"
+                                app:tint="@color/blue_500" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Location"
+                                android:textStyle="bold"
+                                android:textColor="@color/slate_900"
+                                android:layout_marginStart="8dp" />
+                        </LinearLayout>
+
+                        <EditText
+                            android:id="@+id/etAddress"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minHeight="100dp"
+                            android:text="123 Main St, New York"
+                            android:background="@color/slate_50"
+                            android:padding="16dp"
+                            android:gravity="top|start"
+                            android:textColor="@color/slate_700"
+                            android:textSize="14sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:inputType="textMultiLine" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Order Summary -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="16dp"
-                    android:gravity="center_vertical">
-                    
-                    <ImageView
-                         android:layout_width="24dp"
-                         android:layout_height="24dp"
-                         android:src="@drawable/ic_location"
-                         app:tint="@color/app_primary"
-                         android:layout_marginEnd="16dp"/>
-                    
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Home"
-                            android:textStyle="bold"
-                            android:textColor="@color/text_primary"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="123 Main Street, Apt 4B"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="12sp"/>
-                    </LinearLayout>
-                   
-                    <ImageView
-                         android:layout_width="24dp"
-                         android:layout_height="24dp"
-                         android:src="@drawable/ic_launcher_foreground" 
-                         app:tint="@color/app_accent" /> <!-- Replace with edit icon -->
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_order_summary"
+                    android:padding="24dp">
 
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Order Summary"
+                        android:textStyle="bold"
+                        android:textColor="@color/teal_900"
+                        android:layout_marginBottom="8dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="4dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Deep House Cleaning"
+                            android:textColor="@color/teal_700" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="$135.00"
+                            android:textStyle="bold"
+                            android:textColor="@color/teal_700" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvOrderDateTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Jan 30 at 09:00 AM"
+                        android:textSize="14sp"
+                        android:textColor="@color/teal_700" />
+                </LinearLayout>
+            </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Footer -->
-    <LinearLayout
-        android:id="@+id/footerLayout"
+    <!-- Continue Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnContinue"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp"
-        android:background="@color/white"
-        app:layout_constraintBottom_toBottomOf="parent">
-        
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="16dp">
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Total Amount"
-                android:textColor="@color/text_secondary"
-                android:textSize="16sp"/>
-             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="$60.00"
-                android:textColor="@color/text_primary"
-                android:textStyle="bold"
-                android:textSize="20sp"/>
-        </LinearLayout>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnContinueBooking"
-            style="@style/Widget.App.Button.Primary"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:text="Continue to Payment"
-            android:textAllCaps="false"
-            android:textSize="16sp"/>
-    </LinearLayout>
+        android:layout_height="60dp"
+        android:layout_margin="24dp"
+        android:text="Continue"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textAllCaps="false"
+        app:backgroundTint="@color/blue_600"
+        app:cornerRadius="30dp"
+        android:enabled="false"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

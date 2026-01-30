@@ -77,8 +77,8 @@
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="4dp">
                      <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
                         android:src="@drawable/ic_profile"
                         app:tint="@color/app_primary"/>
                     <EditText
@@ -105,8 +105,8 @@
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="4dp">
                      <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
                         android:src="@drawable/lock"
                         app:tint="@color/text_secondary"/> <!-- Lock icon placeholder -->
                     <EditText
@@ -122,9 +122,9 @@
                         android:textColorHint="@color/text_secondary"
                          android:textSize="14sp"/>
                      <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/ic_launcher_foreground"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:src="@drawable/eye"
                         app:tint="@color/text_secondary"/> <!-- Eye icon placeholder -->
                 </LinearLayout>
 
@@ -151,7 +151,8 @@
             android:text="Forgot Password?"
             android:textColor="@color/text_secondary"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="32dp"/>
+            android:layout_marginBottom="32dp"
+            android:textSize="18dp"/>
         
         <LinearLayout
             android:layout_width="match_parent"
@@ -215,14 +216,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="New here? "
-                android:textColor="@color/text_secondary"/>
+                android:textColor="@color/text_secondary"
+                android:textSize="16dp"/>
             <TextView
                 android:id="@+id/tvSignUp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Create an Account"
                 android:textStyle="bold"
-                android:textColor="@color/app_accent"/>
+                android:textColor="@color/app_accent"
+                android:textSize="16dp"/>
         </LinearLayout>
 
     </LinearLayout>

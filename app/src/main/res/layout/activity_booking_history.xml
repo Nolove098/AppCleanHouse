@@ -1,251 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/app_background"
+    android:background="@color/slate_50"
     tools:context=".BookingHistoryActivity">
 
-    <!-- Header -->
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="My Bookings"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@color/text_primary"
-        android:layout_margin="24dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <!-- Tabs -->
+    <!-- Main Content -->
     <LinearLayout
-        android:id="@+id/tabLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/bg_white_rounded"
-        android:backgroundTint="#F0F0F0"
-        android:padding="4dp"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tabUpcoming"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Upcoming"
-            android:gravity="center"
-            android:paddingVertical="12dp"
-            android:textColor="@color/white"
-            android:textStyle="bold"
-            android:background="@drawable/bg_tab_active"/>
-
-        <TextView
-            android:id="@+id/tabHistory"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="History"
-            android:gravity="center"
-            android:paddingVertical="12dp"
-            android:textColor="@color/text_secondary"
-            android:background="@drawable/bg_tab_inactive"/>
-    </LinearLayout>
-
-    <!-- Content (Using ScrollView for simplicity instead of RecyclerView for this mockup) -->
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:padding="24dp"
-        app:layout_constraintTop_toBottomOf="@id/tabLayout"
-        app:layout_constraintBottom_toTopOf="@+id/bottomNavigation">
-
+        <!-- Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:background="@color/white"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingTop="48dp"
+            android:paddingBottom="24dp"
+            android:elevation="2dp">
 
-            <!-- Booking Item 1 (Upcoming) -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardBooking1"
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/white"
-                android:layout_marginBottom="16dp">
-                
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp">
+                android:text="My Bookings"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/slate_900" />
 
-                    <LinearLayout
-                        android:id="@+id/iconContainer1"
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        android:background="@drawable/bg_white_rounded"
-                        android:backgroundTint="@color/app_secondary"
-                        android:gravity="center"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent">
-                        <ImageView
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:src="@drawable/ic_launcher_foreground"
-                            app:tint="@color/app_primary"/>
-                    </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/tvServiceTitle1"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:text="Deep Cleaning"
-                        android:textStyle="bold"
-                        android:textSize="16sp"
-                        android:textColor="@color/text_primary"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="8dp"
-                        app:layout_constraintStart_toEndOf="@id/iconContainer1"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/chipStatus1"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Oct 24, 10:00 AM"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="14sp"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="4dp"
-                        app:layout_constraintStart_toEndOf="@id/iconContainer1"
-                        app:layout_constraintTop_toBottomOf="@id/tvServiceTitle1"/>
-
-                    <TextView
-                        android:id="@+id/chipStatus1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Scheduled"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/white"
-                        android:paddingHorizontal="12dp"
-                        android:paddingVertical="4dp"
-                        android:background="@drawable/bg_status_upcoming"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"/>
-                    
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="$60.00"
-                        android:textStyle="bold"
-                        android:textColor="@color/app_primary"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent"/>
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Booking Item 2 (Completed) -->
-             <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/white"
-                android:layout_marginBottom="16dp">
-                
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp">
-
-                    <LinearLayout
-                        android:id="@+id/iconContainer2"
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        android:background="@drawable/bg_white_rounded"
-                        android:backgroundTint="@color/app_secondary"
-                        android:gravity="center"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent">
-                        <ImageView
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:src="@drawable/ic_launcher_foreground"
-                            app:tint="@color/app_primary"/>
-                    </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/tvServiceTitle2"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:text="Regular Cleaning"
-                        android:textStyle="bold"
-                        android:textSize="16sp"
-                        android:textColor="@color/text_primary"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="8dp"
-                        app:layout_constraintStart_toEndOf="@id/iconContainer2"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/chipStatus2"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Oct 10, 02:00 PM"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="14sp"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="4dp"
-                        app:layout_constraintStart_toEndOf="@id/iconContainer2"
-                        app:layout_constraintTop_toBottomOf="@id/tvServiceTitle2"/>
-
-                    <TextView
-                        android:id="@+id/chipStatus2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Completed"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/white"
-                        android:paddingHorizontal="12dp"
-                        android:paddingVertical="4dp"
-                        android:background="@drawable/bg_status_completed"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"/>
-                    
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="$45.00"
-                        android:textStyle="bold"
-                        android:textColor="@color/app_primary"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent"/>
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
-
+                android:text="Track your past and upcoming jobs"
+                android:textSize="14sp"
+                android:textColor="@color/slate_500"
+                android:layout_marginTop="4dp" />
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
 
+        <!-- Orders List -->
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:fillViewport="true"
+            android:paddingBottom="80dp"
+            android:clipToPadding="false">
+
+            <LinearLayout
+                android:id="@+id/ordersContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp" />
+        </androidx.core.widget.NestedScrollView>
+    </LinearLayout>
+
+    <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:menu="@menu/bottom_nav_menu"
+        android:layout_gravity="bottom"
         android:background="@color/white"
-        app:itemIconTint="@color/selector_nav_color"
-        app:itemTextColor="@color/selector_nav_color"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        android:elevation="8dp"
+        app:itemIconTint="@color/bottom_nav_color"
+        app:itemTextColor="@color/bottom_nav_color"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/bottom_nav_menu" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>
