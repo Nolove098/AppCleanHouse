@@ -9,4 +9,8 @@
     <color name="app_accent">#FFB433</color>
     <color name="text_primary">#333333</color>
     <color name="text_secondary">#757575</color>
+    <color name="status_completed">#2E7D32</color>    <!-- xanh -->
+    <color name="status_in_progress">#F9A825</color> <!-- vàng -->
+    <color name="status_error">#C62828</color>        <!-- đỏ -->
+
 </resources>

@@ -32,7 +32,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_marginStart="8dp">
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -40,14 +39,6 @@
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"/>
-            
-             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Confirmed"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:textColor="@color/app_primary"/>
         </LinearLayout>
     </LinearLayout>
 
@@ -71,51 +62,81 @@
                 app:cardElevation="2dp"
                 app:cardBackgroundColor="@color/white"
                 android:layout_marginBottom="24dp">
-                
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:padding="16dp">
+                    android:orientation="vertical"
+                    android:padding="24dp">
 
-                    <ImageView
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        android:src="@drawable/ic_profile"
+                    <!-- Avatar -->
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:layout_width="120dp"
+                        android:layout_height="120dp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginBottom="16dp"
                         android:background="@drawable/bg_white_rounded"
                         android:backgroundTint="#F0F0F0"
-                        android:layout_marginEnd="16dp"/>
-                    
-                    <LinearLayout
-                        android:layout_width="0dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_sarah"
+                        app:shapeAppearanceOverlay="@style/CircleImage"/>
+
+                    <!-- Name -->
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Sarah M."
-                            android:textStyle="bold"
-                            android:textColor="@color/text_primary"
-                            android:textSize="18sp"/>
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginBottom="12dp"
+                        android:text="Sarah M."
+                        android:textColor="@color/text_primary"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <!-- Rating LEFT - Call RIGHT -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <!-- Rating -->
                         <LinearLayout
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical">
-                            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/ic_star" app:tint="@color/app_accent"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text=" 4.8" android:textStyle="bold" android:textColor="@color/text_primary"/>
+                            android:layout_weight="1"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/ic_star"
+                                app:tint="@color/app_accent" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text=" 4.9"
+                                android:textColor="@color/text_primary"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text=" (120 reviews)"
+                                android:textColor="@color/text_secondary" />
                         </LinearLayout>
+
+                        <!-- Call Button -->
+                        <ImageButton
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:background="@drawable/bg_white_rounded"
+                            android:backgroundTint="@color/app_primary"
+                            android:src="@drawable/ic_call"
+                            app:tint="@color/white" />
                     </LinearLayout>
 
-                    <ImageButton
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:src="@drawable/ic_call"
-                        android:background="@drawable/bg_white_rounded"
-                        android:backgroundTint="@color/app_primary"
-                        app:tint="@color/white"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -129,24 +150,53 @@
                 android:textColor="@color/text_primary"
                 android:layout_marginBottom="16dp"/>
 
+            <!-- Date & Time -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="12dp">
-                <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_launcher_foreground" app:tint="@color/app_primary"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Oct 24, 2026 - 10:00 AM" android:textStyle="bold" android:textColor="@color/text_primary" android:layout_marginStart="12dp"/>
+                android:layout_marginBottom="12dp"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_calendar"
+                    app:tint="@color/app_primary"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="Time: Oct 24, 2026 - 10:00 AM"
+                    android:textColor="@color/text_primary"
+                    android:textStyle="bold" />
             </LinearLayout>
 
-             <LinearLayout
+            <!-- Location -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="24dp">
-                <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_location" app:tint="@color/app_primary"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="123 Main Street, Apt 4B" android:textColor="@color/text_secondary" android:layout_marginStart="12dp"/>
+                android:layout_marginBottom="24dp"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_location"
+                    app:tint="@color/app_primary"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Location: 123 Main Street, Apt 4B"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginStart="12dp"/>
             </LinearLayout>
 
+            <!-- Includes -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -155,24 +205,156 @@
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
                 android:layout_marginBottom="12dp"/>
-            
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
-                <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_check" app:tint="@color/app_primary"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Living Room" android:layout_marginStart="8dp" android:textColor="@color/text_secondary"/>
+                android:layout_marginBottom="8dp"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_check"
+                    app:tint="@color/app_primary"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Living Room"
+                    android:layout_marginStart="8dp"
+                    android:textColor="@color/text_secondary"/>
             </LinearLayout>
-             <LinearLayout
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="24dp">
-                <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_check" app:tint="@color/app_primary"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Kitchen" android:layout_marginStart="8dp" android:textColor="@color/text_secondary"/>
+                android:layout_marginBottom="24dp"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_check"
+                    app:tint="@color/app_primary"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Kitchen"
+                    android:layout_marginStart="8dp"
+                    android:textColor="@color/text_secondary"/>
             </LinearLayout>
 
+            <!-- Service Progress -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Service Progress"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="12dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="24dp">
+
+                <!-- Booked -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_check"
+                        app:tint="@color/status_completed"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Booked"
+                        android:textStyle="bold"
+                        android:textColor="@color/status_completed"
+                        android:layout_marginStart="12dp"/>
+                </LinearLayout>
+
+                <!-- Confirmed -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_check"
+                        app:tint="@color/status_completed"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Confirmed"
+                        android:textStyle="bold"
+                        android:textColor="@color/status_completed"
+                        android:layout_marginStart="12dp"/>
+                </LinearLayout>
+
+                <!-- Arriving -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_loading"
+                        app:tint="@color/status_in_progress"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Arriving"
+                        android:textStyle="bold"
+                        android:textColor="@color/status_in_progress"
+                        android:layout_marginStart="12dp"/>
+                </LinearLayout>
+
+                <!-- Cleaning -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_close"
+                        app:tint="@color/status_error"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cleaning"
+                        android:textStyle="bold"
+                        android:textColor="@color/status_error"
+                        android:layout_marginStart="12dp"/>
+                </LinearLayout>
+            </LinearLayout>
             <!-- Payment Summary -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
