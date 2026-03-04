@@ -10,87 +10,88 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.appcleanhouse.data.MockData
 import com.google.android.material.button.MaterialButton
+import java.text.NumberFormat
+import java.util.Locale
 
 class BookingDetailActivity : AppCompatActivity() {
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_booking_detail)
 
+        // Get order ID
         val orderId = intent.getStringExtra("ORDER_ID") ?: "o1"
-        val order = MockData.MOCK_ORDERS.find { it.id == orderId } ?: MockData.MOCK_ORDERS[0]
+        val order = MockData.MOCK_ORDERS.find { it.id == orderId }
+            ?: MockData.MOCK_ORDERS.first()
+
         val service = MockData.MOCK_SERVICES.find { it.id == order.serviceId }
         val cleaner = MockData.MOCK_CLEANERS.find { it.id == order.cleanerId }
 
-        // Set status header color
+        // =========================
+        // HEADER
+        // =========================
+        val btnBack = findViewById<ImageButton>(R.id.btnBack)
+        btnBack.setOnClickListener { finish() }
+
+        // =========================
+        // STATUS HEADER COLOR
+        // =========================
         val statusHeader = findViewById<View>(R.id.statusHeader)
-        statusHeader.setBackgroundColor(ContextCompat.getColor(this, getStatusColor(order.status)))
+        statusHeader.setBackgroundColor(
+            ContextCompat.getColor(this, getStatusColor(order.status))
+        )
 
-        // Set status badge
-        val tvStatusBadge = findViewById<TextView>(R.id.tvStatusBadge)
-        tvStatusBadge.text = order.status.uppercase()
-
-        // Set service name and order ID
-        val tvServiceName = findViewById<TextView>(R.id.tvServiceName)
-        val tvOrderId = findViewById<TextView>(R.id.tvOrderId)
-        tvServiceName.text = service?.name ?: "Cleaning"
-        tvOrderId.text = "Order #${order.id.uppercase()}"
-
-        // Set cleaner info
-        if (cleaner != null) {
-            val ivCleanerAvatar = findViewById<ImageView>(R.id.ivCleanerAvatar)
-            val tvCleanerName = findViewById<TextView>(R.id.tvCleanerName)
-            val tvCleanerRating = findViewById<TextView>(R.id.tvCleanerRating)
-            
-            ivCleanerAvatar.setImageResource(cleaner.avatarResId)
-            tvCleanerName.text = cleaner.name
-            tvCleanerRating.text = "⭐ ${cleaner.rating}"
-        }
-
-        // Set job details
+        // =========================
+        // DATE & ADDRESS
+        // =========================
         val tvDateTime = findViewById<TextView>(R.id.tvDateTime)
         val tvAddress = findViewById<TextView>(R.id.tvAddress)
-        tvDateTime.text = "${order.date} • ${order.time}"
+
+        tvDateTime.text = "${order.date} - ${order.time}"
         tvAddress.text = order.address
 
-        // Set payment summary
-        val tvServiceFee = findViewById<TextView>(R.id.tvServiceFee)
-        val tvTotal = findViewById<TextView>(R.id.tvTotal)
-        tvServiceFee.text = "$${String.format("%.2f", order.totalPrice)}"
-        tvTotal.text = "$${String.format("%.2f", order.totalPrice + 5.00)}"
 
-        // Back button
-        val btnBack = findViewById<ImageButton>(R.id.btnBack)
-        btnBack.setOnClickListener {
-            finish()
-        }
 
-        // Rebook button
+
+        // =========================
+        // PAYMENT SUMMARY (Optional dynamic)
+        // =========================
+        val currencyFormat = NumberFormat.getCurrencyInstance(Locale.getDefault())
+
+        // Nếu bạn muốn bind dynamic thay vì hardcode $55
+        // Cần thêm id vào các TextView trong XML
+        // Ví dụ: tvSubtotal, tvTax, tvTotal
+
+        // =========================
+        // REBOOK BUTTON
+        // =========================
         val btnRebook = findViewById<MaterialButton>(R.id.btnRebook)
         btnRebook.setOnClickListener {
-            val intent = Intent(this, BookingActivity::class.java)
-            intent.putExtra("SERVICE_ID", service?.id)
-            startActivity(intent)
+            service?.id?.let {
+                val intent = Intent(this, BookingActivity::class.java)
+                intent.putExtra("SERVICE_ID", it)
+                startActivity(intent)
+            }
         }
 
-        // Invoice and Help buttons (placeholder)
-        val btnInvoice = findViewById<MaterialButton>(R.id.btnInvoice)
-        val btnHelp = findViewById<MaterialButton>(R.id.btnHelp)
-        
-        btnInvoice.setOnClickListener {
-            // TODO: Implement invoice download
-        }
-        
-        btnHelp.setOnClickListener {
-            // TODO: Implement help/support
+        // =========================
+        // CANCEL TEXT (demo)
+        // =========================
+        val tvCancel = findViewById<TextView>(R.id.tvCancel)
+        tvCancel.setOnClickListener {
+            // Ví dụ: đổi trạng thái sang cancelled
+            statusHeader.setBackgroundColor(
+                ContextCompat.getColor(this, R.color.status_error)
+            )
         }
     }
 
     private fun getStatusColor(status: String): Int {
-        return when (status) {
-            "Completed" -> R.color.green_600
-            "Upcoming" -> R.color.blue_500
-            "Cancelled" -> R.color.red_700
+        return when (status.lowercase()) {
+            "completed" -> R.color.status_completed
+            "upcoming" -> R.color.status_upcoming
+            "in progress" -> R.color.status_in_progress
+            "cancelled" -> R.color.status_error
             else -> R.color.slate_500
         }
     }

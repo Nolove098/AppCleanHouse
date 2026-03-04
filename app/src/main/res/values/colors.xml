@@ -1,16 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    
+
+
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+
+
     <color name="app_background">#FBF8EF</color>
+
     <color name="app_primary">#80CBC4</color>
+    <color name="app_primary_dark">#26A69A</color>
     <color name="app_secondary">#B4EBE6</color>
     <color name="app_accent">#FFB433</color>
+
+
     <color name="text_primary">#333333</color>
     <color name="text_secondary">#757575</color>
-    <color name="status_completed">#2E7D32</color>    <!-- xanh -->
-    <color name="status_in_progress">#F9A825</color> <!-- vàng -->
-    <color name="status_error">#C62828</color>        <!-- đỏ -->
+    <color name="text_light">#9E9E9E</color>
+
+
+    <color name="status_completed">#2E7D32</color>
+    <color name="status_in_progress">#F9A825</color>
+    <color name="status_error">#C62828</color>
+    <color name="status_upcoming">#29B6F6</color>
+
+
+    <color name="slate_50">#F8FAFC</color>
+    <color name="slate_100">#F1F5F9</color>
+    <color name="slate_200">#E2E8F0</color>
+    <color name="slate_300">#CBD5E1</color>
+    <color name="slate_400">#94A3B8</color>
+    <color name="slate_500">#64748B</color>
+    <color name="slate_600">#475569</color>
+    <color name="slate_700">#334155</color>
+    <color name="slate_800">#1E293B</color>
+    <color name="slate_900">#0F172A</color>
+
+
+    <color name="blue_50">#EFF6FF</color>
+    <color name="blue_100">#DBEAFE</color>
+    <color name="blue_200">#BFDBFE</color>
+    <color name="blue_300">#93C5FD</color>
+    <color name="blue_400">#60A5FA</color>
+    <color name="blue_500">#4FC3F7</color>
+    <color name="blue_600">#29B6F6</color>
+    <color name="blue_700">#1D4ED8</color>
+
+
+    <color name="teal_50">#E0F2F1</color>
+    <color name="teal_100">#B2DFDB</color>
+    <color name="teal_200">#80CBC4</color>
+    <color name="teal_300">#4DB6AC</color>
+    <color name="teal_400">#26A69A</color>
+    <color name="teal_500">#009688</color>
+    <color name="teal_600">#00897B</color>
+    <color name="teal_700">#26A69A</color>
+    <color name="teal_800">#00796B</color>
+    <color name="teal_900">#00695C</color>
+
+
+    <color name="indigo_700">#4338CA</color>
+
+
+    <color name="orange_700">#C2410C</color>
+
+
+    <color name="yellow_400">#FACC15</color>
+
+    <color name="green_600">#059669</color>
+
+    <color name="divider">#E0E0E0</color>
+
+
 
 </resources>
