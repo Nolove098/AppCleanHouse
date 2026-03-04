@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1030446690571",
+    "project_id": "appcleanhouse",
+    "storage_bucket": "appcleanhouse.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1030446690571:android:05ce063048ec0ee420320e",
+        "android_client_info": {
+          "package_name": "com.example.appcleanhouse"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWGcEkiw3W0gDOf2BS_Tv7GQ9TUHeaQqw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

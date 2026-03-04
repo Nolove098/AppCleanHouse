@@ -48,7 +48,7 @@ object MockData {
     val MOCK_CLEANERS = listOf(
         Cleaner(
             id = "c1",
-            name = "Sarah Jenkins",
+            name = "Phan Khai",
             avatarResId = R.drawable.idol1,
             rating = 4.9,
             jobCount = 142,
@@ -56,7 +56,7 @@ object MockData {
         ),
         Cleaner(
             id = "c2",
-            name = "David Chen",
+            name = "Hung Nguyen",
             avatarResId = R.drawable.idol2,
             rating = 4.8,
             jobCount = 98,
@@ -64,7 +64,7 @@ object MockData {
         ),
         Cleaner(
             id = "c3",
-            name = "Maria Rodriguez",
+            name = "Khoa",
             avatarResId = R.drawable.idol1,
             rating = 5.0,
             jobCount = 215,
@@ -72,7 +72,7 @@ object MockData {
         ),
         Cleaner(
             id = "c4",
-            name = "James Wilson",
+            name = "Khoi",
             avatarResId = R.drawable.idol2,
             rating = 4.7,
             jobCount = 76,
@@ -89,7 +89,7 @@ object MockData {
             time = "09:00 AM",
             status = "Upcoming",
             totalPrice = 135.00,
-            address = "123 Main St, New York"
+            address = "QL22, Ho Chi Minh"
         ),
         Order(
             id = "o2",
@@ -99,7 +99,7 @@ object MockData {
             time = "02:00 PM",
             status = "Completed",
             totalPrice = 90.00,
-            address = "123 Main St, New York",
+            address = "Le Hong Phong, Ho Chi Minh",
             rating = 5
         ),
         Order(

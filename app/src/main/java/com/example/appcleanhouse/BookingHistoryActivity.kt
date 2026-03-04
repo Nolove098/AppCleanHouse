@@ -2,13 +2,19 @@ package com.example.appcleanhouse
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.appcleanhouse.data.MockData
+import com.example.appcleanhouse.models.Order
+import com.example.appcleanhouse.models.Service
+import com.example.appcleanhouse.repository.FirebaseAuthRepository
+import com.example.appcleanhouse.repository.FirestoreRepository
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.card.MaterialCardView
 
@@ -41,17 +47,46 @@ class BookingHistoryActivity : AppCompatActivity() {
         }
 
         val ordersContainer = findViewById<LinearLayout>(R.id.ordersContainer)
-        
-        // Populate orders
-        MockData.MOCK_ORDERS.forEach { order ->
-            val service = MockData.MOCK_SERVICES.find { it.id == order.serviceId }
-            val cleaner = MockData.MOCK_CLEANERS.find { it.id == order.cleanerId }
-            
-            if (service != null) {
-                val orderCard = createOrderCard(order, service)
-                ordersContainer.addView(orderCard)
-            }
+
+        // ── Tải đơn hàng thật từ Firestore ─────────────────────────
+        val userId = FirebaseAuthRepository.currentUserId
+        if (userId.isEmpty()) {
+            // Chưa đăng nhập → về màn login
+            startActivity(Intent(this, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            })
+            return
         }
+
+        FirestoreRepository.getUserOrders(
+            userId = userId,
+            onResult = { orders ->
+                if (orders.isEmpty()) {
+                    // Hiển thị thông báo không có đơn hàng
+                    val emptyText = TextView(this).apply {
+                        text = "Bạn chưa có đơn hàng nào 📋"
+                        textSize = 16f
+                        setTextColor(ContextCompat.getColor(this@BookingHistoryActivity, R.color.text_secondary))
+                        gravity = android.view.Gravity.CENTER
+                        setPadding(0, 64, 0, 0)
+                    }
+                    ordersContainer.addView(emptyText)
+                } else {
+                    // Dùng MockData services để map icon/màu cho service
+                    // (services từ Firestore không có colorResId/iconResId)
+                    orders.forEach { order ->
+                        val service = MockData.MOCK_SERVICES.find { it.id == order.serviceId }
+                        if (service != null) {
+                            val orderCard = createOrderCard(order, service)
+                            ordersContainer.addView(orderCard)
+                        }
+                    }
+                }
+            },
+            onFailure = { err ->
+                Toast.makeText(this, "Không tải được đơn hàng: $err", Toast.LENGTH_SHORT).show()
+            }
+        )
     }
 
     private fun createOrderCard(order: com.example.appcleanhouse.models.Order, service: com.example.appcleanhouse.models.Service): MaterialCardView {

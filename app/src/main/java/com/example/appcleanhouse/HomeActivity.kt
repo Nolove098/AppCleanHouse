@@ -10,7 +10,8 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
-import androidx.core.content.ContextCompat // Đã thêm thư viện này để sửa lỗi màu sắc
+import androidx.core.content.ContextCompat
+import com.example.appcleanhouse.api.ApiRepository
 import com.example.appcleanhouse.data.MockData
 import com.example.appcleanhouse.models.Cleaner
 import com.example.appcleanhouse.models.Service
@@ -25,6 +26,32 @@ class HomeActivity : AppCompatActivity() {
         setupBottomNavigation()
         populateServices()
         populateCleaners()
+        loadWeather()           // ← Gọi Weather API
+    }
+
+    /**
+     * Gọi Open-Meteo Weather API và cập nhật UI
+     * Tìm TextView có id tvWeather trong layout để hiển thị
+     */
+    private fun loadWeather() {
+        // Tìm TextView thời tiết trong layout (nếu có)
+        val tvWeather = findViewById<TextView?>(R.id.tvWeather) ?: return
+
+        tvWeather.text = "🌤️ Đang tải thời tiết..."
+
+        ApiRepository.getWeatherHCMC(
+            onSuccess = { weather ->
+                // Phải cập nhật UI trên Main Thread
+                runOnUiThread {
+                    tvWeather.text = "${weather.icon} ${weather.temperature}°C – ${weather.description}\n${weather.bookingAdvice}"
+                }
+            },
+            onFailure = { err ->
+                runOnUiThread {
+                    tvWeather.text = "🌤️ TP. Hồ Chí Minh"
+                }
+            }
+        )
     }
 
     private fun setupBottomNavigation() {

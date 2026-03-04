@@ -9,8 +9,12 @@ import android.widget.GridLayout
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.example.appcleanhouse.models.Order
+import com.example.appcleanhouse.repository.FirebaseAuthRepository
+import com.example.appcleanhouse.repository.FirestoreRepository
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import java.text.SimpleDateFormat
@@ -37,9 +41,19 @@ class BookingActivity : AppCompatActivity() {
 
     private val timeSlots = listOf("09:00 AM", "11:00 AM", "02:00 PM", "04:30 PM")
 
+    // ID service được truyền vào từ màn trước (mặc định "s1")
+    private var serviceId: String = "s1"
+    private var cleanerId: String = "c1"
+    private var servicePrice: Int = 45
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_booking)
+
+        // Nhận serviceId từ Intent nếu có
+        serviceId  = intent.getStringExtra("SERVICE_ID")  ?: "s1"
+        cleanerId  = intent.getStringExtra("CLEANER_ID")  ?: "c1"
+        servicePrice = intent.getIntExtra("SERVICE_PRICE", 45)
 
         initViews()
         setupListeners()
@@ -82,13 +96,57 @@ class BookingActivity : AppCompatActivity() {
                     }
                 }
                 2 -> {
-                    // Navigate to success
-                    val intent = Intent(this, BookingSuccessActivity::class.java)
-                    startActivity(intent)
-                    finish()
+                    // ── Lưu đơn hàng lên Firestore ─────────────────
+                    confirmBookingToFirestore()
                 }
             }
         }
+    }
+
+    /**
+     * Tạo Order object và lưu lên Firestore khi user nhấn "Confirm Booking"
+     */
+    private fun confirmBookingToFirestore() {
+        val userId = FirebaseAuthRepository.currentUserId
+        if (userId.isEmpty()) {
+            Toast.makeText(this, "Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+        val dateStr = selectedDate?.let { dateFormat.format(it) } ?: ""
+        val address = etAddress.text.toString().ifEmpty { selectedAddress }
+
+        val order = Order(
+            userId      = userId,
+            serviceId   = serviceId,
+            cleanerId   = cleanerId,
+            date        = dateStr,
+            time        = selectedTime ?: "",
+            status      = "Upcoming",
+            totalPrice  = servicePrice.toDouble() * 3, // giả sử 3 giờ
+            address     = address
+        )
+
+        // Hiển thị loading
+        btnContinue.isEnabled = false
+        btnContinue.text = "Đang xử lý..."
+
+        FirestoreRepository.createOrder(
+            order = order,
+            onSuccess = { orderId ->
+                // Chuyển sang màn Booking Success
+                val intent = Intent(this, BookingSuccessActivity::class.java)
+                intent.putExtra("ORDER_ID", orderId)
+                startActivity(intent)
+                finish()
+            },
+            onFailure = { err ->
+                btnContinue.isEnabled = true
+                btnContinue.text = "Confirm Booking"
+                Toast.makeText(this, "Không thể đặt dịch vụ: $err", Toast.LENGTH_LONG).show()
+            }
+        )
     }
 
     private fun populateDates() {
