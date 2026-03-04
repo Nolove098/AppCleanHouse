@@ -87,6 +87,7 @@
                  android:paddingHorizontal="16dp">
                 <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_profile" app:tint="@color/app_primary"/>
                 <EditText
+                    android:id="@+id/etFullName"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
                     android:background="@null"
@@ -115,6 +116,7 @@
                  android:paddingHorizontal="16dp">
                 <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_call" app:tint="@color/app_primary"/>
                 <EditText
+                    android:id="@+id/etPhone"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
                     android:background="@null"
@@ -144,6 +146,7 @@
                  android:paddingHorizontal="16dp">
                 <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_launcher_foreground" app:tint="@color/app_primary"/> <!-- Mail icon placeholder -->
                 <EditText
+                    android:id="@+id/etRegisterEmail"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
                     android:background="@null"
@@ -173,6 +176,7 @@
                  android:paddingHorizontal="16dp">
                 <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_launcher_foreground" app:tint="@color/app_primary"/> <!-- Lock icon placeholder -->
                 <EditText
+                    android:id="@+id/etRegisterPassword"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
                     android:background="@null"
