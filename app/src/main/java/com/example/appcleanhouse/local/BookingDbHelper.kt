@@ -12,6 +12,8 @@ class BookingDbHelper(context: Context) : SQLiteOpenHelper(
 ) {
 
     override fun onCreate(db: SQLiteDatabase) {
+
+        
         db.execSQL(CREATE_TABLE_BOOKINGS)
         db.execSQL(CREATE_TABLE_SERVICES)
         db.execSQL(CREATE_TABLE_CLEANERS)
