@@ -36,6 +36,20 @@
             android:textColor="@color/slate_500"
             android:layout_marginTop="4dp"/>
 
+        <EditText
+            android:id="@+id/etSearchBookings"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_search_bar"
+            android:hint="Search service in My Bookings..."
+            android:imeOptions="actionDone"
+            android:inputType="text"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:textColor="@color/slate_900"
+            android:textColorHint="@color/slate_500"/>
+
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

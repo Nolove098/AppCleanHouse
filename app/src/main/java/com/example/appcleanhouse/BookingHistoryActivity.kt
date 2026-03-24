@@ -5,16 +5,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.widget.addTextChangedListener
 import com.example.appcleanhouse.data.MockData
+import com.example.appcleanhouse.local.LocalBookingDataSource
 import com.example.appcleanhouse.models.Order
+import com.example.appcleanhouse.models.Service
 import com.example.appcleanhouse.repository.FirebaseAuthRepository
 import com.example.appcleanhouse.repository.FirestoreRepository
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlin.concurrent.thread
 
 class BookingHistoryActivity : AppCompatActivity() {
 
@@ -24,9 +30,18 @@ class BookingHistoryActivity : AppCompatActivity() {
     private lateinit var filterInProgress: TextView
     private lateinit var filterCompleted: TextView
     private lateinit var filterCancelled: TextView
+    private lateinit var etSearchBookings: EditText
     private var selectedStatusFilter: String? = null
+    private var searchQuery: String = ""
+    private var latestOrders: List<Order> = emptyList()
+    private var isRealtimeFirestoreOrders: Boolean = false
+    private var cachedFirestoreServices: Map<String, Service> = emptyMap()
+    private var cachedLocalServices: Map<String, Service> = emptyMap()
+    private var cachedLocalCleaners: Map<String, com.example.appcleanhouse.models.Cleaner> = emptyMap()
+    private lateinit var localBookingDataSource: LocalBookingDataSource
     private val orderStatusCache = mutableMapOf<String, String>()
     private var hasObservedRealtimeOrders = false
+    private val referenceSyncIntervalMillis = 6 * 60 * 60 * 1000L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,8 +53,21 @@ class BookingHistoryActivity : AppCompatActivity() {
         filterInProgress = findViewById(R.id.filterInProgress)
         filterCompleted = findViewById(R.id.filterCompleted)
         filterCancelled = findViewById(R.id.filterCancelled)
+        etSearchBookings = findViewById(R.id.etSearchBookings)
+        localBookingDataSource = LocalBookingDataSource(this)
+
+        thread {
+            localBookingDataSource.upsertServices(MockData.MOCK_SERVICES)
+            localBookingDataSource.upsertCleaners(MockData.MOCK_CLEANERS)
+            cachedLocalServices = localBookingDataSource.getServicesMap()
+            cachedLocalCleaners = localBookingDataSource.getCleanersMap()
+            runOnUiThread { renderOrders() }
+        }
+
+        syncReferenceDataIfStale()
 
         setupFilters()
+        setupSearch()
 
         // Bottom Navigation
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigation)
@@ -69,6 +97,32 @@ class BookingHistoryActivity : AppCompatActivity() {
         loadBookings()
     }
 
+    private fun syncReferenceDataIfStale() {
+        val lastSyncAt = localBookingDataSource.getLastReferenceSyncAt()
+        val shouldSync = System.currentTimeMillis() - lastSyncAt >= referenceSyncIntervalMillis
+        if (!shouldSync) return
+
+        FirestoreRepository.getServices(
+            onResult = { services ->
+                thread {
+                    localBookingDataSource.upsertServices(services)
+                    cachedLocalServices = localBookingDataSource.getServicesMap()
+                    runOnUiThread { renderOrders() }
+                }
+            }
+        )
+
+        FirestoreRepository.getCleaners(
+            onResult = { cleaners ->
+                thread {
+                    localBookingDataSource.upsertCleaners(cleaners)
+                    cachedLocalCleaners = localBookingDataSource.getCleanersMap()
+                    runOnUiThread { renderOrders() }
+                }
+            }
+        )
+    }
+
     private var ordersListener: com.google.firebase.firestore.ListenerRegistration? = null
 
     private fun loadBookings() {
@@ -95,17 +149,27 @@ class BookingHistoryActivity : AppCompatActivity() {
             }
 
             runOnUiThread {
-                layoutOrders.removeAllViews()
-
                 // Use MockData as fallback when Firestore has no orders (demo/dev)
                 val displayOrders = if (orders.isEmpty()) {
-                    MockData.MOCK_ORDERS.sortedByDescending {
-                        FirestoreRepository.resolveOrderTimestamp(
-                            storedTimestamp = it.timestamp,
-                            date = it.date,
-                            time = it.time,
-                            fallbackTimestamp = it.timestamp
-                        )
+                    val localOrders = localBookingDataSource.getOrdersByUser(userId)
+                    if (localOrders.isNotEmpty()) {
+                        localOrders.sortedByDescending {
+                            FirestoreRepository.resolveOrderTimestamp(
+                                storedTimestamp = it.timestamp,
+                                date = it.date,
+                                time = it.time,
+                                fallbackTimestamp = it.timestamp
+                            )
+                        }
+                    } else {
+                        MockData.MOCK_ORDERS.sortedByDescending {
+                            FirestoreRepository.resolveOrderTimestamp(
+                                storedTimestamp = it.timestamp,
+                                date = it.date,
+                                time = it.time,
+                                fallbackTimestamp = it.timestamp
+                            )
+                        }
                     }
                 } else {
                     orders.sortedByDescending {
@@ -117,45 +181,16 @@ class BookingHistoryActivity : AppCompatActivity() {
                         )
                     }
                 }
-                val filteredOrders = displayOrders.filterByStatus(selectedStatusFilter)
+                latestOrders = displayOrders
+                isRealtimeFirestoreOrders = (displayOrders === orders && orders.isNotEmpty())
 
-                val serviceMap = MockData.MOCK_SERVICES.associateBy { it.id }
-                val cleanerMap = MockData.MOCK_CLEANERS.associateBy { it.id }
-
-                if (displayOrders === orders && orders.isNotEmpty()) {
-                    // Firestore orders – still resolve service names from Firestore
-                    FirestoreRepository.getServices(
-                        onResult = { services ->
-                            val fsServiceMap = services.associateBy { it.id }
-                            for (order in filteredOrders) {
-                                val serviceName = fsServiceMap[order.serviceId]?.name
-                                    ?: serviceMap[order.serviceId]?.name ?: "Service"
-                                val cleanerName = order.cleanerName.ifEmpty {
-                                    cleanerMap[order.cleanerId]?.name ?: "Cleaner"
-                                }
-                                layoutOrders.addView(createOrderView(order, serviceName, cleanerName))
-                            }
-                        },
-                        onFailure = {
-                            for (order in filteredOrders) {
-                                val serviceName = serviceMap[order.serviceId]?.name ?: "Service"
-                                val cleanerName = order.cleanerName.ifEmpty {
-                                    cleanerMap[order.cleanerId]?.name ?: "Cleaner"
-                                }
-                                layoutOrders.addView(createOrderView(order, serviceName, cleanerName))
-                            }
-                        }
-                    )
-                } else {
-                    // MockData fallback
-                    for (order in filteredOrders) {
-                        val serviceName = serviceMap[order.serviceId]?.name ?: "Service"
-                        val cleanerName = order.cleanerName.ifEmpty {
-                            cleanerMap[order.cleanerId]?.name ?: "Cleaner"
-                        }
-                        layoutOrders.addView(createOrderView(order, serviceName, cleanerName))
-                    }
+                thread {
+                    localBookingDataSource.upsertOrders(displayOrders)
+                    cachedLocalServices = localBookingDataSource.getServicesMap()
+                    cachedLocalCleaners = localBookingDataSource.getCleanersMap()
                 }
+
+                renderOrders()
             }
         }
     }
@@ -175,10 +210,17 @@ class BookingHistoryActivity : AppCompatActivity() {
         refreshFilterUi()
     }
 
+    private fun setupSearch() {
+        etSearchBookings.addTextChangedListener { editable ->
+            searchQuery = editable?.toString()?.trim().orEmpty()
+            renderOrders()
+        }
+    }
+
     private fun setStatusFilter(filter: String?) {
         selectedStatusFilter = filter
         refreshFilterUi()
-        loadBookings()
+        renderOrders()
     }
 
     private fun refreshFilterUi() {
@@ -204,6 +246,94 @@ class BookingHistoryActivity : AppCompatActivity() {
         return filter { it.status == status }
     }
 
+    private fun List<Order>.filterBySearch(
+        query: String,
+        serviceMap: Map<String, Service>
+    ): List<Order> {
+        if (query.isBlank()) return this
+        val needle = query.lowercase()
+        return filter { order ->
+            val serviceName = serviceMap[order.serviceId]?.name.orEmpty()
+            serviceName.lowercase().contains(needle)
+        }
+    }
+
+    private fun renderOrders() {
+        layoutOrders.removeAllViews()
+
+        val mockServiceMap = MockData.MOCK_SERVICES.associateBy { it.id }
+        val cleanerMap = MockData.MOCK_CLEANERS.associateBy { it.id }
+        val localServiceMap = cachedLocalServices
+        val localCleanerMap = cachedLocalCleaners
+
+        if (isRealtimeFirestoreOrders) {
+            if (cachedFirestoreServices.isEmpty()) {
+                FirestoreRepository.getServices(
+                    onResult = { services ->
+                        cachedFirestoreServices = services.associateBy { it.id }
+                        thread {
+                            localBookingDataSource.upsertServices(services)
+                            cachedLocalServices = localBookingDataSource.getServicesMap()
+                        }
+                        runOnUiThread { renderOrders() }
+                    },
+                    onFailure = {
+                        runOnUiThread {
+                            val mergedServices = mockServiceMap + localServiceMap
+                            val mergedCleaners = cleanerMap + localCleanerMap
+                            renderOrderList(mergedServices, mergedCleaners)
+                        }
+                    }
+                )
+                return
+            }
+        } else {
+            cachedFirestoreServices = emptyMap()
+        }
+
+        val serviceMap = if (isRealtimeFirestoreOrders) {
+            mockServiceMap + localServiceMap + cachedFirestoreServices
+        } else {
+            mockServiceMap + localServiceMap
+        }
+        val mergedCleanerMap = cleanerMap + localCleanerMap
+        renderOrderList(serviceMap, mergedCleanerMap)
+    }
+
+    private fun renderOrderList(
+        serviceMap: Map<String, Service>,
+        cleanerMap: Map<String, com.example.appcleanhouse.models.Cleaner>
+    ) {
+        val filteredOrders = latestOrders
+            .filterByStatus(selectedStatusFilter)
+            .filterBySearch(searchQuery, serviceMap)
+
+        if (filteredOrders.isEmpty()) {
+            val emptyView = TextView(this).apply {
+                text = "No bookings match your filters"
+                textSize = 14f
+                setTextColor(ContextCompat.getColor(this@BookingHistoryActivity, R.color.slate_500))
+            }
+            layoutOrders.addView(emptyView)
+            return
+        }
+
+        for (order in filteredOrders) {
+            val serviceName = serviceMap[order.serviceId]?.name ?: "Service"
+            val cleanerName = order.cleanerName.ifEmpty {
+                cleanerMap[order.cleanerId]?.name ?: "Cleaner"
+            }
+            layoutOrders.addView(createOrderView(order, serviceName, cleanerName))
+        }
+    }
+
+    private fun updateOrderInMemory(orderId: String, transform: (Order) -> Order) {
+        latestOrders = latestOrders.map { order ->
+            if (order.id == orderId) transform(order) else order
+        }
+        renderOrders()
+    }
+
     private fun createOrderView(order: Order, serviceName: String, cleanerName: String): View {
         val view = LayoutInflater.from(this).inflate(R.layout.item_booking, null)
 
@@ -215,6 +345,8 @@ class BookingHistoryActivity : AppCompatActivity() {
         val chipStatus       = view.findViewById<TextView>(R.id.chipStatus)
         val imgService       = view.findViewById<FrameLayout>(R.id.imgService)
         val btnRebook        = view.findViewById<TextView>(R.id.btnRebook)
+        val btnEditService   = view.findViewById<TextView>(R.id.btnEditService)
+        val btnCancelBooking = view.findViewById<TextView>(R.id.btnCancelBooking)
         val shouldRateCleaner = order.status == "Completed" && order.rating == null
 
         tvServiceTitle.text   = "$serviceName Service • $cleanerName"
@@ -271,6 +403,19 @@ class BookingHistoryActivity : AppCompatActivity() {
             }
         }
 
+        btnEditService.visibility = View.VISIBLE
+        btnCancelBooking.visibility = View.VISIBLE
+        btnEditService.alpha = 1f
+        btnCancelBooking.alpha = 1f
+
+        btnEditService.setOnClickListener {
+            showServicePickerDialog(order, serviceName)
+        }
+
+        btnCancelBooking.setOnClickListener {
+            confirmCancelOrder(order)
+        }
+
         // Card tap → detail
         view.setOnClickListener {
             val intent = Intent(this, BookingDetailActivity::class.java)
@@ -285,6 +430,98 @@ class BookingHistoryActivity : AppCompatActivity() {
         lp.bottomMargin = (12 * resources.displayMetrics.density).toInt()
         view.layoutParams = lp
         return view
+    }
+
+    private fun showServicePickerDialog(order: Order, currentServiceName: String) {
+        val serviceMap = if (cachedFirestoreServices.isNotEmpty()) {
+            (MockData.MOCK_SERVICES.associateBy { it.id } + cachedFirestoreServices)
+        } else {
+            MockData.MOCK_SERVICES.associateBy { it.id }
+        }
+
+        val selectableServices = serviceMap.values
+            .filter { it.id != order.serviceId }
+            .sortedBy { it.name }
+
+        if (selectableServices.isEmpty()) {
+            Toast.makeText(this, "Không có dịch vụ khác để đổi", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val labels = selectableServices.map { "${it.name} ($${it.pricePerHour}/h)" }.toTypedArray()
+        AlertDialog.Builder(this)
+            .setTitle("Change from $currentServiceName")
+            .setItems(labels) { _, which ->
+                val newService = selectableServices[which]
+                val newTotal = newService.pricePerHour * 3 + 5.0
+                if (isRealtimeFirestoreOrders) {
+                    FirestoreRepository.updateOrderFields(
+                        orderId = order.id,
+                        updates = mapOf(
+                            "serviceId" to newService.id,
+                            "totalPrice" to newTotal
+                        ),
+                        onSuccess = {
+                            thread {
+                                localBookingDataSource.updateOrderService(order.id, newService.id, newTotal)
+                            }
+                            updateOrderInMemory(order.id) {
+                                it.copy(serviceId = newService.id, totalPrice = newTotal)
+                            }
+                            Toast.makeText(this, "Đã đổi sang dịch vụ ${newService.name}", Toast.LENGTH_SHORT).show()
+                        },
+                        onFailure = { message ->
+                            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+                        }
+                    )
+                } else {
+                    thread {
+                        localBookingDataSource.updateOrderService(order.id, newService.id, newTotal)
+                    }
+                    updateOrderInMemory(order.id) {
+                        it.copy(serviceId = newService.id, totalPrice = newTotal)
+                    }
+                    Toast.makeText(this, "Đã cập nhật dịch vụ", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Close", null)
+            .show()
+    }
+
+    private fun confirmCancelOrder(order: Order) {
+        AlertDialog.Builder(this)
+            .setTitle("Cancel booking")
+            .setMessage("Bạn muốn hủy booking này?")
+            .setPositiveButton("Cancel Booking") { _, _ ->
+                if (isRealtimeFirestoreOrders) {
+                    FirestoreRepository.updateOrderStatus(
+                        orderId = order.id,
+                        newStatus = "Cancelled",
+                        onSuccess = {
+                            thread {
+                                localBookingDataSource.updateOrderStatus(order.id, "Cancelled")
+                            }
+                            updateOrderInMemory(order.id) {
+                                it.copy(status = "Cancelled")
+                            }
+                            Toast.makeText(this, "Booking đã được hủy", Toast.LENGTH_SHORT).show()
+                        },
+                        onFailure = { message ->
+                            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+                        }
+                    )
+                } else {
+                    thread {
+                        localBookingDataSource.updateOrderStatus(order.id, "Cancelled")
+                    }
+                    updateOrderInMemory(order.id) {
+                        it.copy(status = "Cancelled")
+                    }
+                    Toast.makeText(this, "Booking đã được hủy", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Keep", null)
+            .show()
     }
 
     /**

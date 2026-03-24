@@ -454,6 +454,24 @@ object FirestoreRepository {
             .addOnFailureListener { onFailure(it.message ?: "Không thể cập nhật trạng thái") }
     }
 
+    /** Cập nhật nhiều trường của order (ví dụ đổi service, tổng tiền...). */
+    fun updateOrderFields(
+        orderId: String,
+        updates: Map<String, Any>,
+        onSuccess: () -> Unit = {},
+        onFailure: (String) -> Unit = {}
+    ) {
+        if (updates.isEmpty()) {
+            onFailure("Không có dữ liệu cần cập nhật")
+            return
+        }
+
+        ordersCol.document(orderId)
+            .update(updates)
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { onFailure(it.message ?: "Không thể cập nhật đơn hàng") }
+    }
+
     /** Cập nhật rating cho đơn hàng */
     fun rateOrder(
         orderId: String,

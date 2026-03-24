@@ -167,25 +167,39 @@
                 android:clickable="true"
                 android:focusable="true"/>
 
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1"/>
+            <TextView
+                android:id="@+id/btnEditService"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:drawableStart="@drawable/ic_edit_profile"
+                android:drawablePadding="6dp"
+                android:text="Edit"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/teal_700"
+                android:background="@drawable/bg_status_completed"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="7dp"
+                android:clickable="true"
+                android:focusable="true"/>
 
-            <!-- Arrow button -->
-            <FrameLayout
-                android:id="@+id/btnArrow"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="@drawable/bg_circle_blue">
-
-                <ImageView
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:src="@drawable/ic_chevron_right"
-                    android:layout_gravity="center"
-                    app:tint="@color/blue_700"/>
-            </FrameLayout>
+            <TextView
+                android:id="@+id/btnCancelBooking"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:drawableStart="@drawable/ic_close"
+                android:drawablePadding="6dp"
+                android:text="Cancel"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/status_error"
+                android:background="@drawable/bg_status_cancelled"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="7dp"
+                android:clickable="true"
+                android:focusable="true"/>
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
