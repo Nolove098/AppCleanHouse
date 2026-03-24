@@ -15,6 +15,9 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        val geminiApiKey = (project.findProperty("GEMINI_API_KEY") as String?) ?: ""
+        buildConfigField("String", "GEMINI_API_KEY", "\"$geminiApiKey\"")
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -30,6 +33,9 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+    buildFeatures {
+        buildConfig = true
     }
     kotlinOptions {
         jvmTarget = "11"
@@ -53,6 +59,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
     implementation(libs.firebase.database)
+    implementation(libs.firebase.messaging)
 
     // Retrofit – HTTP Client để gọi REST API
     implementation(libs.retrofit.core)

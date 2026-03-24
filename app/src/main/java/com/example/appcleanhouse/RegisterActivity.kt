@@ -58,12 +58,14 @@ class RegisterActivity : AppCompatActivity() {
                     FirestoreRepository.saveUserProfile(
                         user = newUser,
                         onSuccess = {
+                            FcmTokenManager.syncCurrentUserToken()
                             Toast.makeText(this, "Đăng ký thành công! Chào mừng $fullName 🎉", Toast.LENGTH_LONG).show()
                             startActivity(Intent(this, HomeActivity::class.java).apply {
                                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                             })
                         },
                         onFailure = { err ->
+                            FcmTokenManager.syncCurrentUserToken()
                             Toast.makeText(this, "Đăng ký thành công nhưng không lưu được thông tin: $err", Toast.LENGTH_LONG).show()
                             startActivity(Intent(this, HomeActivity::class.java).apply {
                                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

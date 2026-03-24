@@ -13,6 +13,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.appcleanhouse.models.Order
+import com.example.appcleanhouse.models.CleanerAvailability
+import com.example.appcleanhouse.data.MockData
 import com.example.appcleanhouse.repository.FirebaseAuthRepository
 import com.example.appcleanhouse.repository.FirestoreRepository
 import com.google.android.material.button.MaterialButton
@@ -38,8 +40,17 @@ class BookingActivity : AppCompatActivity() {
     private lateinit var timeContainer: GridLayout
     private lateinit var etAddress: EditText
     private lateinit var tvOrderDateTime: TextView
+    private lateinit var step3Content: LinearLayout
+    private lateinit var rgPaymentMethod: android.widget.RadioGroup
+    private lateinit var tvOrderServicePrice: TextView
+    private lateinit var tvOrderTax: TextView
+    private lateinit var tvOrderTotal: TextView
+    private lateinit var tvDateAvailabilityHint: TextView
+    private lateinit var tvTimeAvailabilityHint: TextView
 
     private val timeSlots = listOf("09:00 AM", "11:00 AM", "02:00 PM", "04:30 PM")
+    private var availabilityByDate: Map<String, List<String>> = CleanerAvailability.upcomingEmptyAvailabilityMap()
+    private var reservedTimeSlots: Set<String> = emptySet()
 
     // ID service được truyền vào từ màn trước (mặc định "s1")
     private var serviceId: String = "s1"
@@ -59,6 +70,7 @@ class BookingActivity : AppCompatActivity() {
         setupListeners()
         populateDates()
         populateTimeSlots()
+        loadCleanerAvailability()
         updateStepUI()
     }
 
@@ -75,6 +87,33 @@ class BookingActivity : AppCompatActivity() {
         timeContainer = findViewById(R.id.timeContainer)
         etAddress = findViewById(R.id.etAddress)
         tvOrderDateTime = findViewById(R.id.tvOrderDateTime)
+        step3Content = findViewById(R.id.step3Content)
+        rgPaymentMethod = findViewById(R.id.rgPaymentMethod)
+        tvOrderServicePrice = findViewById(R.id.tvOrderServicePrice)
+        tvOrderTax = findViewById(R.id.tvOrderTax)
+        tvOrderTotal = findViewById(R.id.tvOrderTotal)
+        tvDateAvailabilityHint = findViewById(R.id.tvDateAvailabilityHint)
+        tvTimeAvailabilityHint = findViewById(R.id.tvTimeAvailabilityHint)
+    }
+
+    private fun loadCleanerAvailability() {
+        FirestoreRepository.getCleanerAvailability(
+            cleanerId = cleanerId,
+            onResult = { availability ->
+                runOnUiThread {
+                    availabilityByDate = CleanerAvailability.mergeWithUpcomingDates(availability.availabilityByDate)
+                    refreshAvailabilityUi()
+                    loadReservedTimeSlotsForSelectedDate()
+                }
+            },
+            onFailure = {
+                runOnUiThread {
+                    availabilityByDate = CleanerAvailability.upcomingEmptyAvailabilityMap()
+                    refreshAvailabilityUi()
+                    loadReservedTimeSlotsForSelectedDate()
+                }
+            }
+        )
     }
 
     private fun setupListeners() {
@@ -96,10 +135,18 @@ class BookingActivity : AppCompatActivity() {
                     }
                 }
                 2 -> {
+                    currentStep = 3
+                    updateStepUI()
+                }
+                3 -> {
                     // ── Lưu đơn hàng lên Firestore ─────────────────
                     confirmBookingToFirestore()
                 }
             }
+        }
+        
+        rgPaymentMethod.setOnCheckedChangeListener { _, _ ->
+            updateContinueButton()
         }
     }
 
@@ -113,24 +160,89 @@ class BookingActivity : AppCompatActivity() {
             return
         }
 
-        val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-        val dateStr = selectedDate?.let { dateFormat.format(it) } ?: ""
+        val dateStr = selectedDate?.let { formatBookingDate(it) } ?: ""
         val address = etAddress.text.toString().ifEmpty { selectedAddress }
 
+        val hours = 3
+        val subtotal = servicePrice * hours
+        val tax = 5.0
+        val total = subtotal + tax
+        val selectedCleanerName = MockData.MOCK_CLEANERS
+            .find { it.id == cleanerId }
+            ?.name
+            ?: "Cleaner"
+
+        val selectedSlot = selectedTime
+        if (dateStr.isBlank() || selectedSlot.isNullOrBlank()) {
+            Toast.makeText(this, "Vui lòng chọn ngày và giờ hợp lệ", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (!isDateAvailable(selectedDate ?: Date()) || !isTimeSlotSelectable(selectedSlot)) {
+            Toast.makeText(this, "Khung giờ này hiện không còn khả dụng", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        btnContinue.isEnabled = false
+        btnContinue.text = "Đang xử lý..."
+
+        FirestoreRepository.getCleanerBookedOrders(
+            cleanerId = cleanerId,
+            date = dateStr,
+            onResult = { orders ->
+                runOnUiThread {
+                    val conflictingSlots = orders.map { it.time }.toSet()
+                    if (selectedSlot in conflictingSlots) {
+                        reservedTimeSlots = conflictingSlots
+                        selectedTime = null
+                        populateTimeSlots()
+                        updateTimeButtons()
+                        updateAvailabilityHints()
+                        updateContinueButton()
+                        btnContinue.text = "Confirm Booking"
+                        Toast.makeText(this, "Khung giờ này vừa được đặt. Vui lòng chọn giờ khác.", Toast.LENGTH_LONG).show()
+                        return@runOnUiThread
+                    }
+
+                    createBookingOrder(
+                        userId = userId,
+                        selectedCleanerName = selectedCleanerName,
+                        dateStr = dateStr,
+                        selectedSlot = selectedSlot,
+                        total = total,
+                        address = address
+                    )
+                }
+            },
+            onFailure = { err ->
+                runOnUiThread {
+                    btnContinue.isEnabled = true
+                    btnContinue.text = "Confirm Booking"
+                    Toast.makeText(this, "Không thể kiểm tra lịch đặt: $err", Toast.LENGTH_LONG).show()
+                }
+            }
+        )
+    }
+
+    private fun createBookingOrder(
+        userId: String,
+        selectedCleanerName: String,
+        dateStr: String,
+        selectedSlot: String,
+        total: Double,
+        address: String
+    ) {
         val order = Order(
             userId      = userId,
             serviceId   = serviceId,
             cleanerId   = cleanerId,
+            cleanerName = selectedCleanerName,
             date        = dateStr,
-            time        = selectedTime ?: "",
+            time        = selectedSlot,
             status      = "Upcoming",
-            totalPrice  = servicePrice.toDouble() * 3, // giả sử 3 giờ
+            totalPrice  = total,
             address     = address
         )
-
-        // Hiển thị loading
-        btnContinue.isEnabled = false
-        btnContinue.text = "Đang xử lý..."
 
         FirestoreRepository.createOrder(
             order = order,
@@ -150,18 +262,29 @@ class BookingActivity : AppCompatActivity() {
     }
 
     private fun populateDates() {
+        dateContainer.removeAllViews()
         val calendar = Calendar.getInstance()
         val dateFormat = SimpleDateFormat("EEE", Locale.getDefault())
+        var firstAvailableDate: Date? = null
         
-        for (i in 0 until 5) {
+        for (i in 0 until 7) {
             val date = calendar.time
+            if (firstAvailableDate == null && isDateAvailable(date)) {
+                firstAvailableDate = date
+            }
             val dateButton = createDateButton(date, dateFormat.format(date), calendar.get(Calendar.DAY_OF_MONTH))
             dateContainer.addView(dateButton)
             calendar.add(Calendar.DAY_OF_MONTH, 1)
         }
+
+        if (selectedDate == null && firstAvailableDate != null) {
+            selectedDate = firstAvailableDate
+        }
+        updateDateButtons()
     }
 
     private fun createDateButton(date: Date, dayName: String, dayNumber: Int): MaterialCardView {
+        val isAvailable = isDateAvailable(date)
         val card = MaterialCardView(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 resources.getDimensionPixelSize(R.dimen.date_button_size),
@@ -174,8 +297,9 @@ class BookingActivity : AppCompatActivity() {
             setCardBackgroundColor(ContextCompat.getColor(context, R.color.white))
             strokeWidth = 2
             strokeColor = ContextCompat.getColor(context, R.color.slate_200)
-            isClickable = true
-            isFocusable = true
+            isClickable = isAvailable
+            isFocusable = isAvailable
+            alpha = if (isAvailable) 1f else 0.45f
         }
 
         val container = LinearLayout(this).apply {
@@ -205,10 +329,14 @@ class BookingActivity : AppCompatActivity() {
         container.addView(tvDate)
         card.addView(container)
 
-        card.setOnClickListener {
-            selectedDate = date
-            updateDateButtons()
-            updateContinueButton()
+        if (isAvailable) {
+            card.setOnClickListener {
+                selectedDate = date
+                selectedTime = null
+                reservedTimeSlots = emptySet()
+                updateDateButtons()
+                loadReservedTimeSlotsForSelectedDate()
+            }
         }
 
         return card
@@ -251,7 +379,7 @@ class BookingActivity : AppCompatActivity() {
         val calendar = Calendar.getInstance()
         val selectedCal = Calendar.getInstance().apply { time = selectedDate!! }
         
-        for (i in 0 until 5) {
+        for (i in 0 until 7) {
             if (calendar.get(Calendar.DAY_OF_MONTH) == selectedCal.get(Calendar.DAY_OF_MONTH) &&
                 calendar.get(Calendar.MONTH) == selectedCal.get(Calendar.MONTH)) {
                 return i
@@ -262,6 +390,7 @@ class BookingActivity : AppCompatActivity() {
     }
 
     private fun populateTimeSlots() {
+        timeContainer.removeAllViews()
         timeSlots.forEachIndexed { index, time ->
             val timeButton = createTimeButton(time)
             
@@ -286,14 +415,16 @@ class BookingActivity : AppCompatActivity() {
     }
 
     private fun createTimeButton(time: String): MaterialCardView {
+        val isAvailable = time in currentAvailableTimeSlots() && time !in reservedTimeSlots
         val card = MaterialCardView(this).apply {
             radius = resources.getDimension(R.dimen.card_corner_radius)
             cardElevation = 0f
             setCardBackgroundColor(ContextCompat.getColor(context, R.color.white))
             strokeWidth = 2
             strokeColor = ContextCompat.getColor(context, R.color.slate_200)
-            isClickable = true
-            isFocusable = true
+            isClickable = isAvailable
+            isFocusable = isAvailable
+            alpha = if (isAvailable) 1f else 0.45f
         }
 
         val textView = TextView(this).apply {
@@ -308,10 +439,12 @@ class BookingActivity : AppCompatActivity() {
 
         card.addView(textView)
 
-        card.setOnClickListener {
-            selectedTime = time
-            updateTimeButtons()
-            updateContinueButton()
+        if (isAvailable) {
+            card.setOnClickListener {
+                selectedTime = time
+                updateTimeButtons()
+                updateContinueButton()
+            }
         }
 
         return card
@@ -338,10 +471,109 @@ class BookingActivity : AppCompatActivity() {
         }
     }
 
+    private fun refreshAvailabilityUi() {
+        if (selectedDate != null && !isDateAvailable(selectedDate!!)) {
+            selectedDate = null
+            selectedTime = null
+        }
+        if (selectedTime != null && !isTimeSlotSelectable(selectedTime!!)) {
+            selectedTime = null
+        }
+
+        populateDates()
+        populateTimeSlots()
+        updateAvailabilityHints()
+        updateContinueButton()
+    }
+
+    private fun updateAvailabilityHints() {
+        val daySummary = availabilityByDate
+            .filterValues { it.isNotEmpty() }
+            .keys
+            .map(CleanerAvailability::storageKeyToDisplay)
+            .toList()
+        tvDateAvailabilityHint.text = if (daySummary.isEmpty()) {
+            "This cleaner has not opened any dates yet."
+        } else {
+            "Open dates: ${daySummary.joinToString(", ")}"
+        }
+
+        val availableTimeSlots = currentAvailableTimeSlots()
+        val openSlots = availableTimeSlots.filterNot { it in reservedTimeSlots }
+        tvTimeAvailabilityHint.text = if (availableTimeSlots.isEmpty()) {
+            "No time slots available right now."
+        } else if (openSlots.isEmpty()) {
+            "All slots for this date are already booked."
+        } else {
+            val bookedSummary = if (reservedTimeSlots.isEmpty()) {
+                ""
+            } else {
+                " • Booked: ${reservedTimeSlots.joinToString(", ")}"
+            }
+            "Open slots: ${openSlots.joinToString(", ")}$bookedSummary"
+        }
+    }
+
+    private fun loadReservedTimeSlotsForSelectedDate() {
+        val selected = selectedDate ?: run {
+            reservedTimeSlots = emptySet()
+            populateTimeSlots()
+            updateTimeButtons()
+            updateAvailabilityHints()
+            updateContinueButton()
+            return
+        }
+
+        val formattedDate = formatBookingDate(selected)
+        FirestoreRepository.getCleanerBookedOrders(
+            cleanerId = cleanerId,
+            date = formattedDate,
+            onResult = { orders ->
+                runOnUiThread {
+                    reservedTimeSlots = orders.map { it.time }.filter { it.isNotBlank() }.toSet()
+                    if (selectedTime != null && !isTimeSlotSelectable(selectedTime!!)) {
+                        selectedTime = null
+                    }
+                    populateTimeSlots()
+                    updateTimeButtons()
+                    updateAvailabilityHints()
+                    updateContinueButton()
+                }
+            },
+            onFailure = {
+                runOnUiThread {
+                    reservedTimeSlots = emptySet()
+                    populateTimeSlots()
+                    updateTimeButtons()
+                    updateAvailabilityHints()
+                    updateContinueButton()
+                }
+            }
+        )
+    }
+
+    private fun isTimeSlotSelectable(time: String): Boolean {
+        return time in currentAvailableTimeSlots() && time !in reservedTimeSlots
+    }
+
+    private fun formatBookingDate(date: Date): String {
+        return CleanerAvailability.dateToStorageKey(date)
+    }
+
+    private fun isDateAvailable(date: Date): Boolean {
+        return availabilityByDate[formatBookingDate(date)].orEmpty().isNotEmpty()
+    }
+
+    private fun currentAvailableTimeSlots(): Set<String> {
+        val selected = selectedDate ?: return emptySet()
+        return availabilityByDate[formatBookingDate(selected)].orEmpty().toSet()
+    }
+
     private fun updateContinueButton() {
         btnContinue.isEnabled = when (currentStep) {
             1 -> selectedDate != null && selectedTime != null
             2 -> true
+            3 -> rgPaymentMethod.checkedRadioButtonId != -1
             else -> false
         }
     }
@@ -351,6 +583,7 @@ class BookingActivity : AppCompatActivity() {
         tvStepTitle.text = when (currentStep) {
             1 -> "Select Time"
             2 -> "Details"
+            3 -> "Payment"
             else -> "Confirm"
         }
 
@@ -367,15 +600,21 @@ class BookingActivity : AppCompatActivity() {
         val params2 = step2Indicator.layoutParams
         params2.width = if (currentStep == 2) dpToPx(32) else dpToPx(8)
         step2Indicator.layoutParams = params2
+        
+        val params3 = step3Indicator.layoutParams
+        params3.width = if (currentStep == 3) dpToPx(32) else dpToPx(8)
+        step3Indicator.layoutParams = params3
 
         // Update content visibility
         step1Content.visibility = if (currentStep == 1) android.view.View.VISIBLE else android.view.View.GONE
         step2Content.visibility = if (currentStep == 2) android.view.View.VISIBLE else android.view.View.GONE
+        step3Content.visibility = if (currentStep == 3) android.view.View.VISIBLE else android.view.View.GONE
 
         // Update button text
         btnContinue.text = when (currentStep) {
             1 -> "Continue"
-            2 -> "Confirm Booking"
+            2 -> "Continue to Payment"
+            3 -> "Confirm Booking"
             else -> "Confirm"
         }
 
@@ -399,6 +638,15 @@ class BookingActivity : AppCompatActivity() {
             val dateStr = dateFormat.format(selectedDate!!)
             tvOrderDateTime.text = "$dateStr at $selectedTime"
         }
+        
+        val hours = 3
+        val subtotal = servicePrice * hours
+        val tax = 5.0
+        val total = subtotal + tax
+        
+        tvOrderServicePrice.text = "$${subtotal}.00"
+        tvOrderTax.text = "$${tax}0"
+        tvOrderTotal.text = "$${total}0"
     }
 
     private fun dpToPx(dp: Int): Int {

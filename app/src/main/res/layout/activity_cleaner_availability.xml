@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/slate_50">
+
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/white"
+        android:padding="24dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageButton
+                android:id="@+id/btnBackAvailability"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_chevron_right"
+                android:rotation="180"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:tint="@color/slate_700"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="Set Availability"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/slate_900"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/header"
+        app:layout_constraintBottom_toTopOf="@id/btnSaveAvailability"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Choose a date and tap slots to open or close them. Booked slots stay locked until the job is completed or cancelled."
+                android:textColor="@color/slate_500"
+                android:textSize="14sp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SELECT DATE"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/slate_900"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="16dp"/>
+
+            <TextView
+                android:id="@+id/tvDateAvailabilityHint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:textColor="@color/slate_500"
+                android:textSize="12sp"
+                android:text="Choose a day to edit"/>
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:layout_marginBottom="32dp">
+
+                <LinearLayout
+                    android:id="@+id/dateContainer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"/>
+            </HorizontalScrollView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TIME SLOTS"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/slate_900"
+                android:layout_marginBottom="16dp"/>
+
+            <TextView
+                android:id="@+id/tvTimeAvailabilityHint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:textColor="@color/slate_500"
+                android:textSize="12sp"
+                android:text="Tap a slot to toggle availability"/>
+
+            <GridLayout
+                android:id="@+id/timeContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="2"/>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSaveAvailability"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_margin="24dp"
+        android:text="Save Availability"
+        android:textAllCaps="false"
+        android:textSize="16sp"
+        app:backgroundTint="@color/blue_600"
+        app:cornerRadius="30dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

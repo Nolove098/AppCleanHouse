@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    app:cardCornerRadius="28dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/white"
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/slate_100">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="28dp"
+        android:padding="25dp">
+
+        <!-- TOP ROW: Status pill + Price -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <!-- Status Chip (colored pill) -->
+            <TextView
+                android:id="@+id/chipStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Upcoming"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="5dp"
+                android:background="@drawable/bg_status_upcoming"/>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+
+            <!-- Price -->
+            <TextView
+                android:id="@+id/tvPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="$135.00"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/slate_900"/>
+        </LinearLayout>
+
+        <!-- MIDDLE ROW: Service icon box + Name / Date Time -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <!-- Service Icon Block (colored square with letter) -->
+            <FrameLayout
+                android:id="@+id/imgService"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:background="@drawable/bg_circle_blue"
+                android:layout_marginEnd="16dp">
+
+                <TextView
+                    android:id="@+id/tvServiceInitial"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="D"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/blue_700"/>
+            </FrameLayout>
+
+            <!-- Service Name + Date/Time -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvServiceTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Deep Clean Service"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/slate_900"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="6dp">
+
+                    <ImageView
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:src="@drawable/ic_calendar"
+                        app:tint="@color/slate_500"/>
+
+                    <TextView
+                        android:id="@+id/tvDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Oct 24, 2023"
+                        android:textSize="12sp"
+                        android:textColor="@color/slate_500"
+                        android:layout_marginStart="4dp"/>
+
+                    <ImageView
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:src="@drawable/ic_clock"
+                        app:tint="@color/slate_500"
+                        android:layout_marginStart="12dp"/>
+
+                    <TextView
+                        android:id="@+id/tvTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="09:00 AM"
+                        android:textSize="12sp"
+                        android:textColor="@color/slate_500"
+                        android:layout_marginStart="4dp"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- DIVIDER -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/slate_100"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- BOTTOM ROW: Rebook button + Arrow -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Rebook -->
+            <TextView
+                android:id="@+id/btnRebook"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="↺  Rebook"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/blue_600"
+                android:background="@drawable/bg_circle_blue"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp"
+                android:clickable="true"
+                android:focusable="true"/>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+
+            <!-- Arrow button -->
+            <FrameLayout
+                android:id="@+id/btnArrow"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/bg_circle_blue">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_chevron_right"
+                    android:layout_gravity="center"
+                    app:tint="@color/blue_700"/>
+            </FrameLayout>
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

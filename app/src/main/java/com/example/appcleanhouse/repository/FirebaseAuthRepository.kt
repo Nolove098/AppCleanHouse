@@ -2,6 +2,7 @@ package com.example.appcleanhouse.repository
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.messaging.FirebaseMessaging
 
 /**
  * Repository xử lý toàn bộ logic Firebase Authentication.
@@ -94,6 +95,11 @@ object FirebaseAuthRepository {
      * Đăng xuất khỏi tài khoản hiện tại.
      */
     fun logout() {
+        val userId = auth.currentUser?.uid
+        if (!userId.isNullOrBlank()) {
+            FirestoreRepository.clearUserFcmToken(userId)
+        }
+        FirebaseMessaging.getInstance().deleteToken()
         auth.signOut()
     }
 }

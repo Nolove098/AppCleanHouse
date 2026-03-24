@@ -109,6 +109,15 @@
                     android:textColor="@color/slate_900"
                     android:layout_marginBottom="16dp"/>
 
+                <TextView
+                    android:id="@+id/tvDateAvailabilityHint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:textColor="@color/slate_500"
+                    android:textSize="12sp"
+                    android:text="Available weekdays will appear below"/>
+
                 <!-- DATE CONTAINER -->
                 <HorizontalScrollView
                     android:layout_width="match_parent"
@@ -132,6 +141,15 @@
                     android:textStyle="bold"
                     android:textColor="@color/slate_900"
                     android:layout_marginBottom="16dp"/>
+
+                <TextView
+                    android:id="@+id/tvTimeAvailabilityHint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:textColor="@color/slate_500"
+                    android:textSize="12sp"
+                    android:text="Choose one of the available slots"/>
 
                 <!-- TIME GRID -->
                 <GridLayout
@@ -183,28 +201,163 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <!-- ORDER SUMMARY -->
-                <LinearLayout
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:background="@color/app_secondary"
-                    android:padding="24dp">
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="2dp"
+                    android:layout_marginBottom="24dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Order Summary"
-                        android:textStyle="bold"
-                        android:textColor="@color/teal_900"
-                        android:layout_marginBottom="8dp"/>
+                        android:orientation="vertical"
+                        android:padding="24dp">
 
-                    <TextView
-                        android:id="@+id/tvOrderDateTime"
-                        android:layout_width="wrap_content"
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Order Summary"
+                            android:textStyle="bold"
+                            android:textColor="@color/slate_900"
+                            android:layout_marginBottom="16dp"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Service Rate (3 hrs)"
+                                android:textColor="@color/slate_600"/>
+                            <TextView
+                                android:id="@+id/tvOrderServicePrice"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="$135.00"
+                                android:textColor="@color/slate_900"
+                                android:textStyle="bold"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Taxes &amp; Fees"
+                                android:textColor="@color/slate_600"/>
+                            <TextView
+                                android:id="@+id/tvOrderTax"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="$5.00"
+                                android:textColor="@color/slate_900"
+                                android:textStyle="bold"/>
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginBottom="16dp"
+                            android:background="@color/slate_200"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Total"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/slate_900"/>
+                            <TextView
+                                android:id="@+id/tvOrderTotal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="$140.00"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/blue_600"/>
+                        </LinearLayout>
+                        
+                        <TextView
+                            android:id="@+id/tvOrderDateTime"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:gravity="center"
+                            android:textSize="12sp"
+                            android:textColor="@color/slate_500"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+            <!-- ================= STEP 3 ================= -->
+            <LinearLayout
+                android:id="@+id/step3Content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SELECT PAYMENT METHOD"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/slate_900"
+                    android:layout_marginBottom="16dp"/>
+
+                <RadioGroup
+                    android:id="@+id/rgPaymentMethod"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:id="@+id/rbCard"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/teal_700"/>
-                </LinearLayout>
+                        android:text="Credit/Debit Card"
+                        android:textColor="@color/slate_900"
+                        android:padding="16dp"
+                        android:layout_marginBottom="8dp"
+                        android:background="@drawable/bg_white_rounded"
+                        android:buttonTint="@color/blue_600"/>
 
+                    <RadioButton
+                        android:id="@+id/rbCash"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Cash on Delivery"
+                        android:textColor="@color/slate_900"
+                        android:padding="16dp"
+                        android:layout_marginBottom="8dp"
+                        android:background="@drawable/bg_white_rounded"
+                        android:buttonTint="@color/blue_600"/>
+
+                    <RadioButton
+                        android:id="@+id/rbWallet"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="E-Wallet (Momo/ZaloPay)"
+                        android:textColor="@color/slate_900"
+                        android:padding="16dp"
+                        android:background="@drawable/bg_white_rounded"
+                        android:buttonTint="@color/blue_600"/>
+                </RadioGroup>
             </LinearLayout>
 
         </LinearLayout>

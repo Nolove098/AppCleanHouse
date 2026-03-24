@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- User message bubble (right-aligned, blue bg, rounded-tr-none) -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="end"
+    android:layout_marginBottom="12dp"
+    android:paddingStart="48dp">
+
+    <!-- Message bubble -->
+    <TextView
+        android:id="@+id/tvUserMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hello!"
+        android:textSize="14sp"
+        android:textColor="@color/white"
+        android:lineSpacingExtra="4dp"
+        android:background="@drawable/bg_bubble_user"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp"/>
+
+    <!-- User avatar circle -->
+    <FrameLayout
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:background="@drawable/bg_circle_blue"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp">
+
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_profile"
+            android:layout_gravity="center"
+            app:tint="@color/blue_700"/>
+    </FrameLayout>
+</LinearLayout>

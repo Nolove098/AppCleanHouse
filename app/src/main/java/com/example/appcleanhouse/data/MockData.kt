@@ -19,7 +19,7 @@ object MockData {
         Service(
             id = "s2",
             name = "Standard",
-            description = "Regular maintenance cleaning for keeping your home fresh.",
+            description = "Regular maintenance cleaning for keeping your home fresh. Includes comprehensive dusting, sweeping, mopping, and basic tidying of living areas and bedrooms, ensuring a consistently clean environment for you and your family.",
             pricePerHour = 30,
             rating = 4.7,
             colorResId = R.drawable.bg_service_teal,
@@ -28,16 +28,16 @@ object MockData {
         Service(
             id = "s3",
             name = "Laundry",
-            description = "Washing, drying, and folding of clothes and linens.",
+            description = "Professional washing, drying, and folding of clothes and linens. We handle your garments, including delicate fabrics, with the utmost care, ensuring everything is returned fresh, perfectly folded, and ready to wear.",
             pricePerHour = 25,
             rating = 4.8,
             colorResId = R.drawable.bg_service_indigo,
-            iconResId = R.drawable.laundry
+            iconResId = R.drawable.ic_laundry
         ),
         Service(
             id = "s4",
             name = "Carpet",
-            description = "Deep steam cleaning to remove stains and allergens.",
+            description = "Deep steam and extraction cleaning to remove stubborn stains, deep-seated dirt, and allergens. We restore the plush look and soft feel of your carpets using professional-grade, eco-friendly equipment.",
             pricePerHour = 60,
             rating = 4.6,
             colorResId = R.drawable.bg_service_orange,
@@ -52,7 +52,12 @@ object MockData {
             avatarResId = R.drawable.idol1,
             rating = 4.9,
             jobCount = 142,
-            specialty = "Deep Clean Specialist"
+            specialty = "Deep Clean Specialist",
+            experience = "6 yrs",
+            about = "Khai is known for deep-clean precision and kitchen revival. He is punctual, detail-oriented, and consistently gets 5-star feedback from returning clients.",
+            pricePerHour = 48,
+            tags = listOf("Deep Clean", "Kitchen", "Sanitize"),
+            distanceKm = 1.8
         ),
         Cleaner(
             id = "c2",
@@ -60,23 +65,38 @@ object MockData {
             avatarResId = R.drawable.idol2,
             rating = 4.8,
             jobCount = 98,
-            specialty = "Fast & Efficient"
+            specialty = "Fast & Efficient",
+            experience = "4 yrs",
+            about = "Hung specializes in fast but meticulous standard cleaning. Great choice for busy weekdays when you need reliable quality in less time.",
+            pricePerHour = 42,
+            tags = listOf("Standard", "Speed", "Organize"),
+            distanceKm = 3.2
         ),
         Cleaner(
             id = "c3",
-            name = "Khoa",
-            avatarResId = R.drawable.idol1,
+            name = "Khoa Tran",
+            avatarResId = R.drawable.avt3,
             rating = 5.0,
             jobCount = 215,
-            specialty = "Pet Friendly"
+            specialty = "Pet Friendly",
+            experience = "7 yrs",
+            about = "Khoa is a premium cleaner trusted by pet owners. He removes fur, odor, and hidden dust effectively while using safe products for animals.",
+            pricePerHour = 55,
+            tags = listOf("Pet Friendly", "Allergy", "Odor Care"),
+            distanceKm = 2.4
         ),
         Cleaner(
             id = "c4",
-            name = "Khoi",
-            avatarResId = R.drawable.idol2,
+            name = "Khoi Le",
+            avatarResId = R.drawable.avt4,
             rating = 4.7,
             jobCount = 76,
-            specialty = "Eco-Friendly Products"
+            specialty = "Eco-Friendly Products",
+            experience = "3 yrs",
+            about = "Khoi focuses on eco-safe products and gentle textile care. Ideal for families that prefer low-chemical and sustainable cleaning routines.",
+            pricePerHour = 40,
+            tags = listOf("Eco", "Laundry", "Carpet"),
+            distanceKm = 4.6
         )
     )
 

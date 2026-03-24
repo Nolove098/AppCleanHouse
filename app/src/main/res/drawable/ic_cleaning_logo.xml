@@ -1,0 +1,14 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Outer Sparkle Ring -->
+    <path
+        android:fillColor="#FFC107"
+        android:pathData="M12,2L14.47,8.6L21,9.36L15.65,13.25L17.58,19L12,15.53L6.42,19L8.35,13.25L3,9.36L9.53,8.6Z" />
+    <!-- Inner Spark -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,6L13.1,10.2L17.5,10.6L14,13.2L15.3,17.2L12,14.8L8.7,17.2L10,13.2L6.5,10.6L10.9,10.2Z" />
+</vector>

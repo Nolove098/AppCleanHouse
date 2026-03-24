@@ -43,5 +43,11 @@
         <item name="cornerSize">50%</item>
     </style>
 
+    <style name="ShapeAppearance.App.RoundedSquare" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">12dp</item>
+    </style>
+
     <style name="Theme.AppCleanHouse" parent="Base.Theme.AppCleanHouse" />
+    <style name="Theme.AppCleanHouse.NoActionBar" parent="Base.Theme.AppCleanHouse" />
 </resources>

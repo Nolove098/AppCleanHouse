@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_cleaner_jobs"
+        android:icon="@drawable/ic_home"
+        android:title="Jobs" />
+    <item
+        android:id="@+id/nav_cleaner_chats"
+        android:icon="@drawable/ic_chat"
+        android:title="Chats" />
+</menu>

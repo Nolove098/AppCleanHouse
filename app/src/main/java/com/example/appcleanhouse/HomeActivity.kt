@@ -15,18 +15,49 @@ import com.example.appcleanhouse.api.ApiRepository
 import com.example.appcleanhouse.data.MockData
 import com.example.appcleanhouse.models.Cleaner
 import com.example.appcleanhouse.models.Service
+import com.example.appcleanhouse.repository.FirebaseAuthRepository
+import com.example.appcleanhouse.repository.FirestoreRepository
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.imageview.ShapeableImageView
 
 class HomeActivity : AppCompatActivity() {
+    private lateinit var tvHomeUserName: TextView
+    private lateinit var tvHomeAddress: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
+        tvHomeUserName = findViewById(R.id.tvHomeUserName)
+        tvHomeAddress = findViewById(R.id.tvHomeAddress)
+        findViewById<TextView>(R.id.btnSeeAllCleaners).setOnClickListener {
+            startActivity(Intent(this, TopCleanersActivity::class.java))
+        }
+
         setupBottomNavigation()
+        loadUserHeader()
         populateServices()
         populateCleaners()
         loadWeather()           // ← Gọi Weather API
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadUserHeader()
+    }
+
+    private fun loadUserHeader() {
+        val userId = FirebaseAuthRepository.currentUserId
+        if (userId.isEmpty()) return
+
+        FirestoreRepository.getUserProfile(userId) { user ->
+            runOnUiThread {
+                if (user != null) {
+                    tvHomeUserName.text = user.fullName.ifEmpty { "User" }
+                    tvHomeAddress.text = user.address.ifEmpty { "Chưa cập nhật địa chỉ" }
+                }
+            }
+        }
     }
 
     /**
@@ -55,13 +86,18 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun setupBottomNavigation() {
-        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigation)
+        val bottomNav = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottomNavigation)
         bottomNav.selectedItemId = R.id.nav_home
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_home -> true
                 R.id.nav_bookings -> {
                     startActivity(Intent(this, BookingHistoryActivity::class.java))
+                    overridePendingTransition(0, 0)
+                    true
+                }
+                R.id.nav_chat -> {
+                    startActivity(Intent(this, ChatActivity::class.java))
                     overridePendingTransition(0, 0)
                     true
                 }
@@ -102,28 +138,19 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    // --- HÀM ĐÃ ĐƯỢC SỬA LỖI HOÀN CHỈNH ---
+    // --- SERVICE CARD matching React Home.tsx: white card + centered icon circle + name ---
     private fun createServiceCard(service: Service): CardView {
         val card = CardView(this).apply {
-            radius = resources.getDimension(R.dimen.card_corner_radius)
-            cardElevation = resources.getDimension(R.dimen.card_elevation_small)
-
-            // SỬA LỖI getColor: Dùng ContextCompat để an toàn hơn
+            radius = 28.dp.toFloat()   // rounded-3xl ≈ 28dp
+            cardElevation = 2.dp.toFloat()
             setCardBackgroundColor(ContextCompat.getColor(context, R.color.white))
-
             isClickable = true
             isFocusable = true
 
-            // SỬA LỖI CRASH (Resource ID): Kiểm tra kỹ trước khi lấy hiệu ứng click
+            // Ripple effect
             val outValue = android.util.TypedValue()
-            val resolved = theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
-
-            if (resolved && outValue.resourceId != 0) {
-                try {
-                    foreground = ContextCompat.getDrawable(context, outValue.resourceId)
-                } catch (e: Exception) {
-                    // Bỏ qua nếu lỗi, tránh crash app
-                }
+            if (theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true) && outValue.resourceId != 0) {
+                try { foreground = ContextCompat.getDrawable(context, outValue.resourceId) } catch (e: Exception) {}
             }
 
             setOnClickListener {
@@ -134,63 +161,67 @@ class HomeActivity : AppCompatActivity() {
             }
         }
 
+        // Vertical container – centered everything
         val container = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
-            val padding = resources.getDimensionPixelSize(R.dimen.card_padding)
-            setPadding(padding, padding, padding, padding)
+            val pad = 20.dp
+            setPadding(pad, pad, pad, pad)
         }
 
-        // Icon with colored background
-        val iconContainer = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
-            layoutParams = LinearLayout.LayoutParams(
-                resources.getDimensionPixelSize(R.dimen.service_icon_size),
-                resources.getDimensionPixelSize(R.dimen.service_icon_size)
-            )
-            setBackgroundResource(service.colorResId)
+        // Colored oval circle (56dp) – matches React w-14 h-14 rounded-full
+        val circle = android.widget.FrameLayout(this).apply {
+            val sz = 56.dp
+            layoutParams = LinearLayout.LayoutParams(sz, sz).apply {
+                bottomMargin = 12.dp
+            }
+            setBackgroundResource(getCircleBackground(service.id))
         }
 
         val icon = ImageView(this).apply {
             setImageResource(service.iconResId)
-            layoutParams = LinearLayout.LayoutParams(
-                resources.getDimensionPixelSize(R.dimen.icon_size),
-                resources.getDimensionPixelSize(R.dimen.icon_size)
-            )
-            setColorFilter(getIconColor(service.id))
+            val iconSz = 26.dp
+            layoutParams = android.widget.FrameLayout.LayoutParams(iconSz, iconSz).apply {
+                gravity = android.view.Gravity.CENTER
+            }
+            setColorFilter(getIconTintColor(service.id))
         }
+        circle.addView(icon)
 
-        iconContainer.addView(icon)
-        container.addView(iconContainer)
-
-        // Service name
+        // Service name centered
         val nameText = TextView(this).apply {
             text = service.name
-            textSize = 16f
-            setTextColor(ContextCompat.getColor(context, R.color.slate_700)) // Sửa lỗi getColor
+            textSize = 14f
+            gravity = Gravity.CENTER
+            setTextColor(ContextCompat.getColor(context, R.color.slate_700))
             setTypeface(typeface, android.graphics.Typeface.BOLD)
-            layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply {
-                topMargin = resources.getDimensionPixelSize(R.dimen.text_margin)
-            }
         }
 
+        container.addView(circle)
         container.addView(nameText)
         card.addView(container)
-
         return card
     }
 
-    private fun getIconColor(serviceId: String): Int {
-        // Sửa lỗi getColor bằng ContextCompat
+    private val Int.dp: Int get() = (this * resources.displayMetrics.density).toInt()
+
+
+    /** Returns the oval circle drawable resource for this service's icon background */
+    private fun getCircleBackground(serviceId: String): Int = when (serviceId) {
+        "s1" -> R.drawable.bg_circle_blue
+        "s2" -> R.drawable.bg_circle_teal
+        "s3" -> R.drawable.bg_circle_indigo
+        "s4" -> R.drawable.bg_circle_orange
+        else -> R.drawable.bg_circle_blue
+    }
+
+    /** Returns the icon tint color matching the React color classes */
+    private fun getIconTintColor(serviceId: String): Int {
         val colorRes = when (serviceId) {
-            "s1" -> R.color.blue_700
-            "s2" -> R.color.teal_700
-            "s3" -> R.color.indigo_700
-            "s4" -> R.color.orange_700
+            "s1" -> R.color.blue_700   // text-blue-700
+            "s2" -> R.color.teal_500   // text-teal-700
+            "s3" -> R.color.indigo_700 // text-indigo-700
+            "s4" -> R.color.orange_700  // text-orange-700
             else -> R.color.blue_700
         }
         return ContextCompat.getColor(this, colorRes)
@@ -211,11 +242,19 @@ class HomeActivity : AppCompatActivity() {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             ).apply {
-                bottomMargin = resources.getDimensionPixelSize(R.dimen.card_margin)
+                bottomMargin = 12.dp
             }
-            radius = resources.getDimension(R.dimen.card_corner_radius_large)
-            cardElevation = resources.getDimension(R.dimen.card_elevation_small)
-            setCardBackgroundColor(ContextCompat.getColor(context, R.color.white)) // Sửa lỗi getColor
+            radius = 24.dp.toFloat()  // rounded-3xl
+            cardElevation = 2.dp.toFloat()
+            setCardBackgroundColor(ContextCompat.getColor(context, R.color.white))
+            isClickable = true
+            isFocusable = true
+        }
+
+        card.setOnClickListener {
+            startActivity(Intent(this, CleanerDetailActivity::class.java).apply {
+                putExtra("CLEANER_ID", cleaner.id)
+            })
         }
 
         val container = LinearLayout(this).apply {
@@ -225,16 +264,14 @@ class HomeActivity : AppCompatActivity() {
             setPadding(padding, padding, padding, padding)
         }
 
-        // Avatar
+        // Avatar – rounded-2xl (12dp radius)
         val avatar = ShapeableImageView(this).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                resources.getDimensionPixelSize(R.dimen.avatar_size),
-                resources.getDimensionPixelSize(R.dimen.avatar_size)
-            )
+            val sz = 64.dp
+            layoutParams = LinearLayout.LayoutParams(sz, sz)
             setImageResource(cleaner.avatarResId)
             scaleType = ImageView.ScaleType.CENTER_CROP
             shapeAppearanceModel = shapeAppearanceModel.toBuilder()
-                .setAllCornerSizes(resources.getDimension(R.dimen.avatar_corner_radius))
+                .setAllCornerSizes(12.dp.toFloat())  // rounded-2xl
                 .build()
         }
 
@@ -329,16 +366,24 @@ class HomeActivity : AppCompatActivity() {
 
         container.addView(infoContainer)
 
-        // View button
+        // View button – matches React `bg-slate-50 rounded-full text-blue-600`
         val viewButton = TextView(this).apply {
             text = "View"
             textSize = 12f
-            setTextColor(ContextCompat.getColor(context, R.color.blue_600)) // Sửa lỗi getColor
+            setTextColor(ContextCompat.getColor(context, R.color.blue_600))
             setTypeface(typeface, android.graphics.Typeface.BOLD)
             gravity = Gravity.CENTER
-            val padding = resources.getDimensionPixelSize(R.dimen.button_padding_small)
-            setPadding(padding, padding, padding, padding)
-            setBackgroundResource(R.drawable.bg_tab_inactive)
+            val padH = 16.dp
+            val padV = 8.dp
+            setPadding(padH, padV, padH, padV)
+            setBackgroundResource(R.drawable.bg_circle_blue)  // soft blue circle pill
+            isClickable = true
+            isFocusable = true
+            setOnClickListener {
+                startActivity(Intent(this@HomeActivity, CleanerDetailActivity::class.java).apply {
+                    putExtra("CLEANER_ID", cleaner.id)
+                })
+            }
         }
         container.addView(viewButton)
         card.addView(container)

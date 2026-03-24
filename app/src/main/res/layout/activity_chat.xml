@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Smart Assistant chat – matches SmartAssistant.tsx -->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/slate_50">
+
+    <!-- ===== HEADER ===== -->
+    <LinearLayout
+        android:id="@+id/chatHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@color/white"
+        android:elevation="4dp"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="16dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Bot avatar (indigo circle) -->
+        <FrameLayout
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_circle_indigo"
+            android:layout_marginEnd="14dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_chat"
+                android:layout_gravity="center"
+                app:tint="@color/indigo_700"/>
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Smart Assistant"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/slate_900"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:src="@drawable/ic_star"
+                    app:tint="@color/yellow_400"
+                    android:layout_marginEnd="4dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Powered by Gemini"
+                    android:textSize="11sp"
+                    android:textColor="@color/slate_500"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- ===== MESSAGES AREA ===== -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvMessages"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:padding="16dp"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toBottomOf="@id/chatHeader"
+        app:layout_constraintBottom_toTopOf="@id/inputBar"/>
+
+    <!-- ===== TYPING INDICATOR (hidden by default) ===== -->
+    <LinearLayout
+        android:id="@+id/typingIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/bg_white_rounded"
+        android:padding="12dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/inputBar">
+
+        <View
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:background="@drawable/bg_circle_indigo"
+            android:layout_marginEnd="4dp"/>
+        <View
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:background="@drawable/bg_circle_indigo"
+            android:layout_marginEnd="4dp"/>
+        <View
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:background="@drawable/bg_circle_indigo"/>
+    </LinearLayout>
+
+    <!-- ===== INPUT BAR ===== -->
+    <LinearLayout
+        android:id="@+id/inputBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@color/white"
+        android:paddingStart="16dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:elevation="8dp"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigation">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@color/slate_50"
+            android:layout_marginEnd="8dp">
+
+            <EditText
+                android:id="@+id/etMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:paddingStart="18dp"
+                android:paddingEnd="18dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:hint="Ask specific cleaning questions..."
+                android:background="@null"
+                android:textSize="14sp"
+                android:inputType="textMultiLine"
+                android:maxLines="4"
+                android:textColor="@color/slate_900"
+                android:textColorHint="@color/slate_400"/>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Send button (blue-600 rounded-xl) -->
+        <FrameLayout
+            android:id="@+id/btnSend"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_send_button"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_send"
+                android:layout_gravity="center"
+                app:tint="@color/white"/>
+        </FrameLayout>
+    </LinearLayout>
+
+    <!-- ===== BOTTOM NAVIGATION ===== -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:menu="@menu/bottom_nav_menu"
+        android:background="@color/white"
+        android:elevation="12dp"
+        app:itemIconTint="@color/selector_nav_color"
+        app:itemTextColor="@color/selector_nav_color"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

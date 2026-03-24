@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -18,14 +19,25 @@
             android:name=".RatingActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
-            android:exported="true">
+            android:name=".CleanerAvailabilityActivity"
+            android:exported="false" />
+        
+        <!-- Splash Activity becomes Launcher -->
+        <activity
+            android:name=".SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCleanHouse.NoActionBar"> <!-- Assumes NoActionBar theme exists or fallback to app theme -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="false">
+        </activity>
+        
         <activity android:name=".RegisterActivity" />
         <activity android:name=".HomeActivity" />
         <activity android:name=".ProfileActivity" />
@@ -35,7 +47,24 @@
         <activity android:name=".TrackingActivity" />
         <activity android:name=".BookingHistoryActivity" />
         <activity android:name=".BookingDetailActivity" />
+        <activity android:name=".ChatActivity" />
+        <activity android:name=".EditProfileActivity" />
+        <activity android:name=".SupportActivity" />
+        <activity android:name=".PaymentMethodActivity" />
+        <activity android:name=".TopCleanersActivity" />
+        <activity android:name=".CleanerDetailActivity" />
+        <activity android:name=".CleanerDashboardActivity" />
+        <activity android:name=".CleanerJobBoardActivity" />
+        <activity android:name=".CleanerJobDetailActivity" />
+        <activity android:name=".RealtimeChatActivity" />
 
+        <service
+            android:name=".AppFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
 
     </application>
 

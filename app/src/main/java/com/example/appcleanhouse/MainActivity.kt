@@ -18,9 +18,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // ── Auto-login: nếu đã đăng nhập rồi thì vào thẳng Home ──
+        // ── Auto-login: nếu đã đăng nhập rồi thì kiểm tra role rồi vào ──
         if (FirebaseAuthRepository.isLoggedIn) {
-            goToHome()
+            routeByRole()
             return
         }
 
@@ -39,6 +39,9 @@ class MainActivity : AppCompatActivity() {
 
         // ── Seed dữ liệu ban đầu lên Firestore (services & cleaners) ──
         FirestoreRepository.seedInitialData()
+
+        // ── Seed cleaner accounts (chỉ chạy 1 lần) ──
+        FirestoreRepository.seedCleanerAccounts()
 
         // ── Nút Đăng nhập ──────────────────────────────────────────
         btnSignIn.setOnClickListener {
@@ -63,7 +66,7 @@ class MainActivity : AppCompatActivity() {
                 email = email,
                 password = password,
                 onSuccess = {
-                    goToHome()
+                    routeByRole()
                 },
                 onFailure = { errorMsg ->
                     btnSignIn.isEnabled = true
@@ -76,6 +79,56 @@ class MainActivity : AppCompatActivity() {
         // ── Nút Đăng ký ────────────────────────────────────────────
         tvSignUp.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
+        }
+    }
+
+    /**
+     * Kiểm tra role trong Firestore và chuyển hướng phù hợp:
+     * - "cleaner" -> CleanerDashboardActivity
+     * - "customer" (hoặc mặc định) -> HomeActivity
+     */
+    private fun routeByRole() {
+        val userId = FirebaseAuthRepository.currentUserId
+        if (userId.isEmpty()) {
+            goToHome()
+            return
+        }
+
+        FcmTokenManager.syncCurrentUserToken()
+
+        val email = FirebaseAuthRepository.currentUser?.email ?: ""
+        
+        // Auto-assign cleaner role & map IDs cho các email nhân viên (giúp hỗ trợ tài khoản tạo tay bằng console)
+        val cleanerMapping = mapOf(
+            "cleaner1@cleanhouse.com" to "c2", // Hung Nguyen
+            "cleaner2@cleanhouse.com" to "c1", // Phan Khai
+            "cleaner3@cleanhouse.com" to "c3", // Khoa Tran
+            "cleaner4@cleanhouse.com" to "c4"  // Khoi Le
+        )
+
+        val cId = cleanerMapping[email]
+        if (cId != null) {
+            val userMap = mapOf("uid" to userId, "email" to email, "role" to "cleaner")
+            FirestoreRepository.usersCol.document(userId).set(userMap).addOnCompleteListener {
+                FirestoreRepository.cleanersCol.document(cId).update("authUid", userId).addOnCompleteListener {
+                    runOnUiThread {
+                        startActivity(Intent(this, CleanerJobBoardActivity::class.java))
+                        finish()
+                    }
+                }
+            }
+            return
+        }
+
+        FirestoreRepository.getUserRole(userId) { role ->
+            runOnUiThread {
+                if (role == "cleaner") {
+                    startActivity(Intent(this, CleanerJobBoardActivity::class.java))
+                } else {
+                    startActivity(Intent(this, HomeActivity::class.java))
+                }
+                finish()
+            }
         }
     }
 

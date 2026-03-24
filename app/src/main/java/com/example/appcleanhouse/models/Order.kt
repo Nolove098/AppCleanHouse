@@ -5,10 +5,12 @@ data class Order(
     val userId: String = "",
     val serviceId: String = "",
     val cleanerId: String = "",
+    val cleanerName: String = "",
     val date: String = "",
     val time: String = "",
-    val status: String = "Upcoming", // "Upcoming", "Completed", "Cancelled"
+    val status: String = "Upcoming", // "Upcoming", "In Progress", "Completed", "Cancelled"
     val totalPrice: Double = 0.0,
     val address: String = "",
-    val rating: Int? = null
+    val rating: Int? = null,
+    val timestamp: Long = System.currentTimeMillis()
 )

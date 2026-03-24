@@ -37,9 +37,9 @@ class ServiceDetailActivity : AppCompatActivity() {
         // Set hero image based on service
         val heroImageRes = when (service.id) {
             "s1" -> R.drawable.deepcleaning
-            "s2" -> R.drawable.deepcleaning // Replace with standard cleaning image if available
-            "s3" -> R.drawable.deepcleaning // Replace with laundry image if available
-            "s4" -> R.drawable.deepcleaning // Replace with carpet image if available
+            "s2" -> R.drawable.img_standard_cleaning
+            "s3" -> R.drawable.img_laundry_service
+            "s4" -> R.drawable.img_carpet_cleaning
             else -> R.drawable.deepcleaning
         }
         ivHeroImage.setImageResource(heroImageRes)
