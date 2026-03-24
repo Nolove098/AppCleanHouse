@@ -6,6 +6,7 @@ data class User(
     val fullName: String = "",
     val phone: String = "",
     val address: String = "",
+    val birthDate: String = "",
     val paymentMethod: String = "card",
     val role: String = "customer" // "customer" or "cleaner"
 )

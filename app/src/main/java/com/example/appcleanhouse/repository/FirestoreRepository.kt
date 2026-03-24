@@ -3,6 +3,7 @@ package com.example.appcleanhouse.repository
 import com.example.appcleanhouse.models.Cleaner
 import com.example.appcleanhouse.models.CleanerAvailability
 import com.example.appcleanhouse.models.Order
+import com.example.appcleanhouse.models.PaymentCard
 import com.example.appcleanhouse.models.Review
 import com.example.appcleanhouse.models.Service
 import com.example.appcleanhouse.models.User
@@ -59,6 +60,111 @@ object FirestoreRepository {
             .update("paymentMethod", paymentMethod)
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { onFailure(it.message ?: "Không thể cập nhật phương thức thanh toán") }
+    }
+
+    private fun paymentCardsCol(userId: String) = usersCol.document(userId).collection("payment_cards")
+
+    fun listenUserPaymentCards(
+        userId: String,
+        onResult: (List<PaymentCard>) -> Unit,
+        onFailure: (String) -> Unit = {}
+    ): ListenerRegistration {
+        return paymentCardsCol(userId).addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                onFailure(error.message ?: "Không thể tải danh sách thẻ")
+                onResult(emptyList())
+                return@addSnapshotListener
+            }
+            val cards = snapshot?.documents
+                ?.mapNotNull { doc -> doc.toObject<PaymentCard>()?.copy(id = doc.id) }
+                ?.sortedWith(compareByDescending<PaymentCard> { it.isDefault }.thenByDescending { it.createdAt })
+                ?: emptyList()
+            onResult(cards)
+        }
+    }
+
+    fun addPaymentCard(
+        userId: String,
+        card: PaymentCard,
+        onSuccess: () -> Unit = {},
+        onFailure: (String) -> Unit = {}
+    ) {
+        val docRef = paymentCardsCol(userId).document()
+        val payload = card.copy(
+            id = docRef.id,
+            createdAt = if (card.createdAt > 0L) card.createdAt else System.currentTimeMillis()
+        )
+        docRef.set(payload)
+            .addOnSuccessListener {
+                if (payload.isDefault) {
+                    setDefaultPaymentCard(userId, payload.id, onSuccess, onFailure)
+                } else {
+                    onSuccess()
+                }
+            }
+            .addOnFailureListener { onFailure(it.message ?: "Không thể thêm thẻ") }
+    }
+
+    fun deletePaymentCard(
+        userId: String,
+        cardId: String,
+        onSuccess: () -> Unit = {},
+        onFailure: (String) -> Unit = {}
+    ) {
+        paymentCardsCol(userId).document(cardId).delete()
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { onFailure(it.message ?: "Không thể xoá thẻ") }
+    }
+
+    fun setDefaultPaymentCard(
+        userId: String,
+        cardId: String,
+        onSuccess: () -> Unit = {},
+        onFailure: (String) -> Unit = {}
+    ) {
+        paymentCardsCol(userId).get()
+            .addOnSuccessListener { snapshot ->
+                val batch = db.batch()
+                snapshot.documents.forEach { doc ->
+                    val shouldDefault = doc.id == cardId
+                    batch.update(doc.reference, "isDefault", shouldDefault)
+                }
+                batch.update(usersCol.document(userId), "paymentMethod", "card")
+                batch.commit()
+                    .addOnSuccessListener { onSuccess() }
+                    .addOnFailureListener { onFailure(it.message ?: "Không thể đặt thẻ mặc định") }
+            }
+            .addOnFailureListener { onFailure(it.message ?: "Không thể đặt thẻ mặc định") }
+    }
+
+    fun ensureDefaultPaymentCards(
+        userId: String,
+        onDone: () -> Unit = {},
+        onFailure: (String) -> Unit = {}
+    ) {
+        paymentCardsCol(userId).limit(1).get()
+            .addOnSuccessListener { snapshot ->
+                if (!snapshot.isEmpty) {
+                    onDone()
+                    return@addOnSuccessListener
+                }
+
+                val batch = db.batch()
+                val now = System.currentTimeMillis()
+                val seedCards = listOf(
+                    PaymentCard(type = "Visa", last4 = "4242", expiry = "12/24", isDefault = true, createdAt = now),
+                    PaymentCard(type = "Mastercard", last4 = "8888", expiry = "06/25", isDefault = false, createdAt = now - 1)
+                )
+                seedCards.forEach { card ->
+                    val doc = paymentCardsCol(userId).document()
+                    batch.set(doc, card.copy(id = doc.id))
+                }
+                batch.update(usersCol.document(userId), "paymentMethod", "card")
+                batch.commit()
+                    .addOnSuccessListener { onDone() }
+                    .addOnFailureListener { onFailure(it.message ?: "Không thể khởi tạo thẻ mặc định") }
+            }
+            .addOnFailureListener { onFailure(it.message ?: "Không thể kiểm tra thẻ thanh toán") }
     }
 
     fun updateUserFcmToken(

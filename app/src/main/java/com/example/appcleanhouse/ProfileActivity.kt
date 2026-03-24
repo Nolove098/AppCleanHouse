@@ -73,6 +73,8 @@ class ProfileActivity : AppCompatActivity() {
                     tvUserName.text = user.fullName.ifEmpty { "User" }
                     tvUserEmail.text = user.email.ifEmpty { tvUserEmail.text }
                     tvPaymentSubtitle.text = when (user.paymentMethod) {
+                        "paypal" -> "Đang chọn: PayPal"
+                        "applepay" -> "Đang chọn: Apple Pay"
                         "wallet" -> "Đang chọn: Momo Wallet"
                         else -> "Đang chọn: Credit/Debit Card"
                     }

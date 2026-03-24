@@ -8,6 +8,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.example.appcleanhouse.data.MockData
 import com.example.appcleanhouse.models.CleanerAvailability
 import com.example.appcleanhouse.models.Review
@@ -26,18 +27,23 @@ class CleanerDetailActivity : AppCompatActivity() {
         val tvDetailRating = findViewById<TextView>(R.id.tvDetailRating)
         val tvAvailabilitySummary = findViewById<TextView>(R.id.tvAvailabilitySummary)
         val tvReviewSummary = findViewById<TextView>(R.id.tvReviewSummary)
+        val tvSelectedServiceDescription = findViewById<TextView>(R.id.tvSelectedServiceDescription)
         val layoutReviewList = findViewById<LinearLayout>(R.id.layoutReviewList)
+        val layoutTagChips = findViewById<LinearLayout>(R.id.layoutTagChips)
 
         findViewById<ImageButton>(R.id.btnBackCleanerDetail).setOnClickListener { finish() }
 
         findViewById<ImageView>(R.id.ivCleanerHero).setImageResource(cleaner.avatarResId)
         findViewById<TextView>(R.id.tvCleanerDetailName).text = cleaner.name
+        findViewById<TextView>(R.id.tvCleanerSpecialty).text = cleaner.specialty
         tvDetailRating.text = String.format("%.1f", cleaner.rating)
         findViewById<TextView>(R.id.tvDetailJobs).text = cleaner.jobCount.toString()
         findViewById<TextView>(R.id.tvDetailExperience).text = cleaner.experience
         findViewById<TextView>(R.id.tvAboutTitle).text = "About ${cleaner.name.substringBefore(" ")}"
         findViewById<TextView>(R.id.tvAboutCleaner).text = cleaner.about
-        findViewById<TextView>(R.id.tvCleanerPrice).text = "$${cleaner.pricePerHour} / hour"
+        val tvCleanerPrice = findViewById<TextView>(R.id.tvCleanerPrice)
+        val tvSelectedServiceHint = findViewById<TextView>(R.id.tvSelectedServiceHint)
+        bindTags(layoutTagChips, cleaner.tags)
 
         FirestoreRepository.getCleanerAvailability(
             cleanerId = cleaner.id,
@@ -89,10 +95,20 @@ class CleanerDetailActivity : AppCompatActivity() {
         val adapter = android.widget.ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, services.map { it.name })
         spinnerService.adapter = adapter
         
-        var selectedServiceId = "s1"
+        var selectedServiceId = services.firstOrNull()?.id ?: "s1"
+        var selectedServicePrice = services.firstOrNull()?.pricePerHour ?: cleaner.pricePerHour
+        val firstServiceDescription = services.firstOrNull()?.description.orEmpty()
+        tvCleanerPrice.text = "$${selectedServicePrice} / hour"
+        tvSelectedServiceHint.text = "${services.firstOrNull()?.name ?: "Selected"} service rate: $$selectedServicePrice / hour"
+        tvSelectedServiceDescription.text = firstServiceDescription.take(110)
+
         spinnerService.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
                 selectedServiceId = services[position].id
+                selectedServicePrice = services[position].pricePerHour
+                tvCleanerPrice.text = "$${selectedServicePrice} / hour"
+                tvSelectedServiceHint.text = "${services[position].name} service rate: $$selectedServicePrice / hour"
+                tvSelectedServiceDescription.text = services[position].description.take(110)
             }
             override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {}
         }
@@ -100,7 +116,7 @@ class CleanerDetailActivity : AppCompatActivity() {
         btnBook.setOnClickListener {
             startActivity(Intent(this, BookingActivity::class.java).apply {
                 putExtra("SERVICE_ID", selectedServiceId)
-                putExtra("SERVICE_PRICE", cleaner.pricePerHour)
+                putExtra("SERVICE_PRICE", selectedServicePrice)
                 putExtra("CLEANER_ID", cleaner.id)
             })
         }
@@ -183,4 +199,26 @@ class CleanerDetailActivity : AppCompatActivity() {
             "${CleanerAvailability.storageKeyToDisplay(entry.key)}: ${entry.value.joinToString(", ")}"
         }
     }
+
+    private fun bindTags(container: LinearLayout, tags: List<String>) {
+        container.removeAllViews()
+        tags.take(5).forEach { tag ->
+            val chip = TextView(this).apply {
+                text = tag
+                textSize = 12f
+                setTextColor(ContextCompat.getColor(this@CleanerDetailActivity, R.color.teal_700))
+                setPadding(dp(12), dp(6), dp(12), dp(6))
+                setBackgroundResource(R.drawable.bg_filter_chip_idle)
+            }
+            val params = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            params.marginEnd = dp(8)
+            chip.layoutParams = params
+            container.addView(chip)
+        }
+    }
+
+    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 }

@@ -22,6 +22,7 @@ class CleanerDashboardActivity : AppCompatActivity() {
 
     private lateinit var rvChatRooms: RecyclerView
     private lateinit var adapter: ChatRoomAdapter
+    private lateinit var tvChatCount: TextView
     private var roomsListener: ListenerRegistration? = null
     private var latestRooms: List<ChatRoom> = emptyList()
     private val customerNameCache = mutableMapOf<String, String>()
@@ -34,6 +35,7 @@ class CleanerDashboardActivity : AppCompatActivity() {
         setContentView(R.layout.activity_cleaner_dashboard)
 
         val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
+        tvChatCount = findViewById(R.id.tvChatCount)
         val emptyState = findViewById<View>(R.id.emptyState)
         rvChatRooms = findViewById(R.id.rvChatRooms)
 
@@ -83,6 +85,7 @@ class CleanerDashboardActivity : AppCompatActivity() {
                         latestRooms = rooms
                         runOnUiThread {
                             submitResolvedRooms(rooms)
+                            tvChatCount.text = "${rooms.size} active chats"
                             emptyState.visibility = if (rooms.isEmpty()) View.VISIBLE else View.GONE
                             rvChatRooms.visibility = if (rooms.isEmpty()) View.GONE else View.VISIBLE
                         }

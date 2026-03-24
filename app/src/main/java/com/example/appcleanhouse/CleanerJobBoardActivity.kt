@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.HorizontalScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -24,10 +25,22 @@ import com.google.firebase.firestore.Query
 class CleanerJobBoardActivity : AppCompatActivity() {
 
     private lateinit var layoutOrders: LinearLayout
+    private lateinit var emptyState: View
+    private lateinit var tvEmptyTitle: TextView
+    private lateinit var tvEmptySubtitle: TextView
+    private lateinit var tvCountAll: TextView
+    private lateinit var tvCountUpcoming: TextView
+    private lateinit var tvCountInProgress: TextView
+    private lateinit var filterAll: TextView
+    private lateinit var filterUpcoming: TextView
+    private lateinit var filterInProgress: TextView
+    private lateinit var filterCompleted: TextView
     private var jobsListener: ListenerRegistration? = null
     private var cleanerId: String = ""
     private val knownJobIds = mutableSetOf<String>()
     private var hasObservedJobs = false
+    private var allJobs: List<Order> = emptyList()
+    private var selectedFilter: String = FILTER_ALL
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,10 +49,20 @@ class CleanerJobBoardActivity : AppCompatActivity() {
         val tvWelcome = findViewById<TextView>(R.id.tvWelcomeCleaner)
         val btnAvailability = findViewById<MaterialButton>(R.id.btnAvailability)
         val btnLogout = findViewById<MaterialButton>(R.id.btnLogout)
-        val emptyState = findViewById<View>(R.id.emptyState)
+        emptyState = findViewById(R.id.emptyState)
+        tvEmptyTitle = findViewById(R.id.tvEmptyTitle)
+        tvEmptySubtitle = findViewById(R.id.tvEmptySubtitle)
+        tvCountAll = findViewById(R.id.tvCountAll)
+        tvCountUpcoming = findViewById(R.id.tvCountUpcoming)
+        tvCountInProgress = findViewById(R.id.tvCountInProgress)
+        filterAll = findViewById(R.id.filterAll)
+        filterUpcoming = findViewById(R.id.filterUpcoming)
+        filterInProgress = findViewById(R.id.filterInProgress)
+        filterCompleted = findViewById(R.id.filterCompleted)
         
         // We will dynamically use layoutOrders here.
         layoutOrders = findViewById(R.id.layoutOrders)
+        setupFilters()
 
         val currentUserId = FirebaseAuthRepository.currentUserId
 
@@ -54,7 +77,7 @@ class CleanerJobBoardActivity : AppCompatActivity() {
         FirestoreRepository.cleanersCol.whereEqualTo("authUid", currentUserId).get()
             .addOnSuccessListener { snapshot ->
                 cleanerId = if (!snapshot.isEmpty) snapshot.documents.first().id else currentUserId
-                listenForJobs(emptyState)
+                listenForJobs()
             }
 
         btnAvailability.setOnClickListener {
@@ -69,7 +92,42 @@ class CleanerJobBoardActivity : AppCompatActivity() {
         }
     }
 
-    private fun listenForJobs(emptyState: View) {
+    private fun setupFilters() {
+        val filterViews = listOf(filterAll, filterUpcoming, filterInProgress, filterCompleted)
+        filterViews.forEach { view ->
+            view.setOnClickListener {
+                selectedFilter = when (view.id) {
+                    R.id.filterUpcoming -> FILTER_UPCOMING
+                    R.id.filterInProgress -> FILTER_IN_PROGRESS
+                    R.id.filterCompleted -> FILTER_COMPLETED
+                    else -> FILTER_ALL
+                }
+                applyFilterStyles()
+                renderJobs()
+            }
+        }
+        applyFilterStyles()
+    }
+
+    private fun applyFilterStyles() {
+        listOf(filterAll, filterUpcoming, filterInProgress, filterCompleted).forEach { chip ->
+            val active = when (chip.id) {
+                R.id.filterUpcoming -> selectedFilter == FILTER_UPCOMING
+                R.id.filterInProgress -> selectedFilter == FILTER_IN_PROGRESS
+                R.id.filterCompleted -> selectedFilter == FILTER_COMPLETED
+                else -> selectedFilter == FILTER_ALL
+            }
+            chip.setBackgroundResource(if (active) R.drawable.bg_filter_chip_active else R.drawable.bg_filter_chip_idle)
+            chip.setTextColor(
+                ContextCompat.getColor(
+                    this,
+                    if (active) R.color.white else R.color.slate_600
+                )
+            )
+        }
+    }
+
+    private fun listenForJobs() {
         jobsListener = FirestoreRepository.ordersCol
             .whereEqualTo("cleanerId", cleanerId)
             .addSnapshotListener { snapshot, error ->
@@ -82,6 +140,7 @@ class CleanerJobBoardActivity : AppCompatActivity() {
                 }
 
                 val jobs = snapshot.toObjects(Order::class.java).sortedByDescending { it.timestamp }
+                allJobs = jobs
                 if (hasObservedJobs) {
                     jobs.filter { it.id.isNotBlank() && it.id !in knownJobIds }.forEach { order ->
                         NotificationHelper.notifyNewCleanerJob(this, order)
@@ -92,22 +151,49 @@ class CleanerJobBoardActivity : AppCompatActivity() {
                 hasObservedJobs = true
 
                 runOnUiThread {
-                    layoutOrders.removeAllViews()
-                    if (jobs.isEmpty()) {
-                        emptyState.visibility = View.VISIBLE
-                        layoutOrders.visibility = View.GONE
-                    } else {
-                        emptyState.visibility = View.GONE
-                        layoutOrders.visibility = View.VISIBLE
-                        
-                        val serviceMap = MockData.MOCK_SERVICES.associateBy { it.id }
-                        for (order in jobs) {
-                            val serviceName = serviceMap[order.serviceId]?.name ?: "Service"
-                            layoutOrders.addView(createOrderView(order, serviceName))
-                        }
-                    }
+                    renderJobs()
                 }
             }
+    }
+
+    private fun renderJobs() {
+        val filteredJobs = when (selectedFilter) {
+            FILTER_UPCOMING -> allJobs.filter { it.status == FILTER_UPCOMING }
+            FILTER_IN_PROGRESS -> allJobs.filter { it.status == FILTER_IN_PROGRESS }
+            FILTER_COMPLETED -> allJobs.filter { it.status == FILTER_COMPLETED }
+            else -> allJobs
+        }
+
+        tvCountAll.text = allJobs.size.toString()
+        tvCountUpcoming.text = allJobs.count { it.status == FILTER_UPCOMING }.toString()
+        tvCountInProgress.text = allJobs.count { it.status == FILTER_IN_PROGRESS }.toString()
+
+        layoutOrders.removeAllViews()
+        if (filteredJobs.isEmpty()) {
+            emptyState.visibility = View.VISIBLE
+            layoutOrders.visibility = View.GONE
+            tvEmptyTitle.text = when (selectedFilter) {
+                FILTER_UPCOMING -> "No upcoming jobs"
+                FILTER_IN_PROGRESS -> "No jobs in progress"
+                FILTER_COMPLETED -> "No completed jobs yet"
+                else -> "No assigned jobs yet"
+            }
+            tvEmptySubtitle.text = if (selectedFilter == FILTER_ALL) {
+                "New bookings will appear here right away"
+            } else {
+                "Try switching to another filter"
+            }
+            return
+        }
+
+        emptyState.visibility = View.GONE
+        layoutOrders.visibility = View.VISIBLE
+
+        val serviceMap = MockData.MOCK_SERVICES.associateBy { it.id }
+        filteredJobs.forEach { order ->
+            val serviceName = serviceMap[order.serviceId]?.name ?: "Service"
+            layoutOrders.addView(createOrderView(order, serviceName))
+        }
     }
 
     private fun createOrderView(order: Order, serviceName: String): View {
@@ -122,7 +208,7 @@ class CleanerJobBoardActivity : AppCompatActivity() {
         val imgService       = view.findViewById<FrameLayout>(R.id.imgService)
         val btnRebook        = view.findViewById<TextView>(R.id.btnRebook)
 
-        tvServiceTitle.text   = "$serviceName • $cleanerId"
+        tvServiceTitle.text   = serviceName
         tvServiceInitial.text = serviceName.firstOrNull()?.toString() ?: "S"
         tvDate.text           = order.date
         tvTime.text           = order.time
@@ -201,5 +287,12 @@ class CleanerJobBoardActivity : AppCompatActivity() {
         super.onDestroy()
         jobsListener?.remove()
         knownJobIds.clear()
+    }
+
+    companion object {
+        private const val FILTER_ALL = "All"
+        private const val FILTER_UPCOMING = "Upcoming"
+        private const val FILTER_IN_PROGRESS = "In Progress"
+        private const val FILTER_COMPLETED = "Completed"
     }
 }
