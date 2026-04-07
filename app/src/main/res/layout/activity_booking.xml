@@ -358,6 +358,27 @@
                         android:background="@drawable/bg_white_rounded"
                         android:buttonTint="@color/blue_600"/>
                 </RadioGroup>
+
+                <!-- AI Price Explainer Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAiPriceExplainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="16dp"
+                    android:text="🤖 AI giải thích giá cho bạn"
+                    android:textAllCaps="false"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/blue_50"
+                    app:cornerRadius="12dp"
+                    app:strokeColor="@color/blue_600"
+                    app:strokeWidth="1dp"
+                    android:textColor="@color/blue_600"
+                    app:icon="@drawable/ic_sparkles"
+                    app:iconTint="@color/blue_600"
+                    app:iconGravity="textStart"
+                    app:iconPadding="8dp" />
+
             </LinearLayout>
 
         </LinearLayout>

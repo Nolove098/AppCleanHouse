@@ -73,4 +73,24 @@
         app:strokeWidth="1dp"
         android:textColor="@color/slate_700" />
 
+    <!-- AI Checklist Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnAiChecklist"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="12dp"
+        android:text="✨ AI Checklist – Chuẩn bị trước khi dọn"
+        android:textAllCaps="false"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:backgroundTint="@color/blue_50"
+        app:cornerRadius="16dp"
+        app:strokeColor="@color/blue_600"
+        app:strokeWidth="1dp"
+        android:textColor="@color/blue_600"
+        app:icon="@drawable/ic_sparkles"
+        app:iconTint="@color/blue_600"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp" />
+
 </LinearLayout>

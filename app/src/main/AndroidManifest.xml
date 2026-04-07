@@ -57,6 +57,8 @@
         <activity android:name=".CleanerJobBoardActivity" />
         <activity android:name=".CleanerJobDetailActivity" />
         <activity android:name=".RealtimeChatActivity" />
+        <activity android:name=".AiChecklistActivity" />
+        <activity android:name=".AiPriceExplainerActivity" />
 
         <service
             android:name=".AppFirebaseMessagingService"

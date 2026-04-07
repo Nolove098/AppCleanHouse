@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- AI Price Explainer – Giải thích giá bằng AI -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/slate_50"
+    tools:context=".AiPriceExplainerActivity">
+
+    <!-- ===== HEADER ===== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@color/white"
+        android:elevation="4dp"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="16dp">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_chevron_left"
+            android:background="@drawable/bg_back_button"
+            android:scaleType="centerInside"
+            android:contentDescription="Back"
+            app:tint="@color/slate_700" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="14dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="AI Price Explainer"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/slate_900" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Giải thích chi tiết giá dịch vụ"
+                android:textSize="12sp"
+                android:textColor="@color/slate_500" />
+        </LinearLayout>
+
+        <!-- AI badge -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🤖 AI"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="@color/blue_700"
+            android:background="@drawable/bg_circle_blue"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="6dp" />
+    </LinearLayout>
+
+    <!-- ===== PRICE SUMMARY CARD ===== -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@color/white">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Service name -->
+            <TextView
+                android:id="@+id/tvPriceService"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Deep Clean"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/slate_900" />
+
+            <!-- Price breakdown -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Đơn giá"
+                    android:textSize="14sp"
+                    android:textColor="@color/slate_500" />
+
+                <TextView
+                    android:id="@+id/tvPricePerHour"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$45/giờ"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/slate_700" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="6dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Số giờ"
+                    android:textSize="14sp"
+                    android:textColor="@color/slate_500" />
+
+                <TextView
+                    android:id="@+id/tvHours"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="3 giờ"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/slate_700" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="6dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Thuế/Phí"
+                    android:textSize="14sp"
+                    android:textColor="@color/slate_500" />
+
+                <TextView
+                    android:id="@+id/tvTax"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$5.0"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/slate_700" />
+            </LinearLayout>
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="12dp"
+                android:background="@color/slate_200" />
+
+            <!-- Total -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="TỔNG CỘNG"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/slate_900" />
+
+                <TextView
+                    android:id="@+id/tvTotalPrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$140.0"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/blue_600" />
+            </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- ===== LOADING STATE ===== -->
+    <LinearLayout
+        android:id="@+id/loadingContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="32dp"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:indeterminateTint="@color/blue_600" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🤖 AI đang phân tích giá cho bạn..."
+            android:textSize="14sp"
+            android:textColor="@color/slate_600"
+            android:layout_marginTop="12dp" />
+    </LinearLayout>
+
+    <!-- ===== ERROR STATE ===== -->
+    <LinearLayout
+        android:id="@+id/errorContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="32dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tvError"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="❌ Có lỗi xảy ra"
+            android:textSize="14sp"
+            android:textColor="@color/slate_600"
+            android:gravity="center" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRetry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Thử lại"
+            android:textAllCaps="false"
+            app:backgroundTint="@color/blue_600"
+            app:cornerRadius="12dp"
+            android:layout_marginTop="12dp" />
+    </LinearLayout>
+
+    <!-- ===== AI EXPLANATION CONTENT ===== -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/explanationScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:visibility="gone">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/white">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <!-- AI label -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <FrameLayout
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:background="@drawable/bg_circle_blue">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_sparkles"
+                            android:layout_gravity="center"
+                            app:tint="@color/blue_700" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Phân tích bởi AI"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/blue_700"
+                        android:layout_marginStart="8dp" />
+                </LinearLayout>
+
+                <!-- AI explanation text -->
+                <TextView
+                    android:id="@+id/tvExplanation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/slate_700"
+                    android:lineSpacingExtra="4dp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- ===== BOTTOM BUTTON ===== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:elevation="8dp"
+        android:padding="16dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnClose"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Đã hiểu, quay lại"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textAllCaps="false"
+            app:backgroundTint="@color/slate_900"
+            app:cornerRadius="16dp" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -148,6 +148,23 @@ class BookingActivity : AppCompatActivity() {
         rgPaymentMethod.setOnCheckedChangeListener { _, _ ->
             updateContinueButton()
         }
+
+        // AI Price Explainer button
+        findViewById<com.google.android.material.button.MaterialButton>(R.id.btnAiPriceExplainer)
+            .setOnClickListener {
+                val hours = 3
+                val subtotal = servicePrice * hours
+                val tax = 5.0
+                val total = subtotal + tax
+                val serviceName = MockData.MOCK_SERVICES.find { it.id == serviceId }?.name ?: serviceId
+                startActivity(Intent(this, AiPriceExplainerActivity::class.java).apply {
+                    putExtra("SERVICE_NAME", serviceName)
+                    putExtra("PRICE_PER_HOUR", servicePrice)
+                    putExtra("HOURS", hours)
+                    putExtra("TAX", tax)
+                    putExtra("TOTAL_PRICE", total)
+                })
+            }
     }
 
     /**
@@ -248,8 +265,13 @@ class BookingActivity : AppCompatActivity() {
             order = order,
             onSuccess = { orderId ->
                 // Chuyển sang màn Booking Success
+                val serviceName = MockData.MOCK_SERVICES.find { it.id == serviceId }?.name ?: serviceId
                 val intent = Intent(this, BookingSuccessActivity::class.java)
                 intent.putExtra("ORDER_ID", orderId)
+                intent.putExtra("SERVICE_NAME", serviceName)
+                intent.putExtra("ADDRESS", address)
+                intent.putExtra("DATE", dateStr)
+                intent.putExtra("TIME", selectedSlot)
                 startActivity(intent)
                 finish()
             },
