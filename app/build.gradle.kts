@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -15,7 +17,13 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        val geminiApiKey = (project.findProperty("GEMINI_API_KEY") as String?) ?: ""
+        // Đọc GEMINI_API_KEY từ local.properties (an toàn, không commit lên git)
+        val localProps = Properties()
+        val localPropsFile = rootProject.file("local.properties")
+        if (localPropsFile.exists()) {
+            localProps.load(localPropsFile.inputStream())
+        }
+        val geminiApiKey = localProps.getProperty("GEMINI_API_KEY", "")
         buildConfigField("String", "GEMINI_API_KEY", "\"$geminiApiKey\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -59,8 +67,11 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.messaging)
 
-    // Retrofit – HTTP Client để gọi REST API
+    // Retrofit + OkHttp – HTTP Client để gọi REST API (cũng dùng cho Gemini API)
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.gson)
     implementation(libs.okhttp.logging)
+
+    // Lifecycle ViewModel
+    implementation(libs.androidx.lifecycle.viewmodel)
 }

@@ -13,6 +13,8 @@ firebaseBom = "33.9.0"
 googleServices = "4.4.2"
 retrofit = "2.11.0"
 okhttp = "4.12.0"
+generativeai = "0.9.0"
+lifecycleViewModel = "2.8.7"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -34,6 +36,12 @@ firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging
 retrofit-core = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
 okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
+
+# Google Generative AI (Gemini SDK)
+google-generativeai = { group = "com.google.ai.client.generativeai", name = "generativeai", version.ref = "generativeai" }
+
+# Lifecycle ViewModel
+androidx-lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewModel" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -1,23 +1,32 @@
 package com.example.appcleanhouse
 
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.appcleanhouse.adapter.SmartMessage
 import com.example.appcleanhouse.adapter.SmartMessageAdapter
-import com.example.appcleanhouse.api.*
+import com.example.appcleanhouse.viewmodel.AiChatViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import org.json.JSONObject
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import kotlinx.coroutines.launch
 
+/**
+ * AI Chatbot Activity – Trợ lý ảo CleanHouse.
+ *
+ * Sử dụng kiến trúc MVVM:
+ * - AiChatViewModel xử lý logic giao tiếp với Gemini AI
+ * - SmartMessageAdapter (ListAdapter + DiffUtil) hiển thị tin nhắn
+ * - StateFlow cập nhật UI reactive
+ */
 class ChatActivity : AppCompatActivity() {
 
     private lateinit var rvMessages: RecyclerView
@@ -25,56 +34,81 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var btnSend: FrameLayout
     private lateinit var typingIndicator: LinearLayout
     private lateinit var adapter: SmartMessageAdapter
-
-    private val messages = mutableListOf<SmartMessage>()
-
-    // System prompt to make it a cleaning expert
-    private val systemPrompt = """
-        You are Sparkle, a friendly and knowledgeable cleaning expert assistant for a professional home cleaning app called CleanHouse.
-        - Keep answers concise but helpful (2-4 sentences max).
-        - Focus on cleaning tips, stain removal, product recommendations, and scheduling advice.
-        - Use a warm, professional tone.
-        - Reply in the same language as the user's latest message (Vietnamese or English).
-        - If asked something unrelated to cleaning/home maintenance, politely redirect.
-    """.trimIndent()
+    private lateinit var viewModel: AiChatViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
 
-        rvMessages       = findViewById(R.id.rvMessages)
-        etMessage        = findViewById(R.id.etMessage)
-        btnSend          = findViewById(R.id.btnSend)
-        typingIndicator  = findViewById(R.id.typingIndicator)
+        // ── Khởi tạo ViewModel ──────────────────────────────────────
+        viewModel = ViewModelProvider(this)[AiChatViewModel::class.java]
 
-        adapter = SmartMessageAdapter(messages)
+        // ── Bind Views ──────────────────────────────────────────────
+        rvMessages      = findViewById(R.id.rvMessages)
+        etMessage       = findViewById(R.id.etMessage)
+        btnSend         = findViewById(R.id.btnSend)
+        typingIndicator = findViewById(R.id.typingIndicator)
+
+        // ── Setup RecyclerView ──────────────────────────────────────
+        adapter = SmartMessageAdapter()
         rvMessages.layoutManager = LinearLayoutManager(this).apply { stackFromEnd = true }
         rvMessages.adapter = adapter
 
-        // Welcome message
-        messages.add(SmartMessage("model", "Hi! I'm Sparkle, your cleaning expert 🧹✨\nAsk me anything! e.g., \"How do I remove wine stains?\""))
-        adapter.notifyItemInserted(0)
+        // ── Observe messages (StateFlow) ────────────────────────────
+        lifecycleScope.launch {
+            viewModel.messages.collect { messages ->
+                adapter.submitList(messages) {
+                    // Scroll xuống cuối sau khi list được cập nhật
+                    if (messages.isNotEmpty()) {
+                        rvMessages.scrollToPosition(messages.size - 1)
+                    }
+                }
+            }
+        }
 
-        // Send button
+        // ── Observe typing state ────────────────────────────────────
+        lifecycleScope.launch {
+            viewModel.isTyping.collect { isTyping ->
+                if (isTyping) {
+                    typingIndicator.visibility = View.VISIBLE
+                    startTypingAnimation()
+                    // Disable input khi đang chờ phản hồi
+                    btnSend.isEnabled = false
+                    etMessage.isEnabled = false
+                } else {
+                    typingIndicator.visibility = View.GONE
+                    stopTypingAnimation()
+                    btnSend.isEnabled = true
+                    etMessage.isEnabled = true
+                }
+            }
+        }
+
+        // ── Send button ─────────────────────────────────────────────
         btnSend.setOnClickListener {
             val text = etMessage.text.toString().trim()
             if (text.isNotEmpty()) {
-                sendUserMessage(text)
+                viewModel.sendMessage(text)
                 etMessage.setText("")
             }
         }
 
-        // Enter key
+        // ── Enter key ───────────────────────────────────────────────
         etMessage.setOnEditorActionListener { _, _, _ ->
             val text = etMessage.text.toString().trim()
             if (text.isNotEmpty()) {
-                sendUserMessage(text)
+                viewModel.sendMessage(text)
                 etMessage.setText("")
             }
             true
         }
 
-        // Bottom Navigation
+        // ── Bottom Navigation ───────────────────────────────────────
+        setupBottomNavigation()
+    }
+
+    // ─── Bottom Navigation ──────────────────────────────────────────
+    private fun setupBottomNavigation() {
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigation)
         bottomNav.selectedItemId = R.id.nav_chat
         bottomNav.setOnItemSelectedListener { item ->
@@ -100,143 +134,53 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun sendUserMessage(text: String) {
-        // Add user message
-        messages.add(SmartMessage("user", text))
-        adapter.notifyItemInserted(messages.size - 1)
-        scrollToBottom()
+    // ─── Typing Indicator Animation (pulse dots) ────────────────────
+    private var typingAnimatorSet: AnimatorSet? = null
 
-        // Show typing indicator
-        typingIndicator.visibility = View.VISIBLE
+    private fun startTypingAnimation() {
+        val dot1 = findViewById<View>(R.id.dot1)
+        val dot2 = findViewById<View>(R.id.dot2)
+        val dot3 = findViewById<View>(R.id.dot3)
 
-        // Disable input while loading
-        btnSend.isEnabled = false
-        etMessage.isEnabled = false
+        fun createPulse(view: View, startDelay: Long): AnimatorSet {
+            val scaleX = ObjectAnimator.ofFloat(view, "scaleX", 1f, 1.4f, 1f).apply {
+                duration = 600
+                repeatCount = ObjectAnimator.INFINITE
+                interpolator = AccelerateDecelerateInterpolator()
+                this.startDelay = startDelay
+            }
+            val scaleY = ObjectAnimator.ofFloat(view, "scaleY", 1f, 1.4f, 1f).apply {
+                duration = 600
+                repeatCount = ObjectAnimator.INFINITE
+                interpolator = AccelerateDecelerateInterpolator()
+                this.startDelay = startDelay
+            }
+            val alpha = ObjectAnimator.ofFloat(view, "alpha", 1f, 0.5f, 1f).apply {
+                duration = 600
+                repeatCount = ObjectAnimator.INFINITE
+                interpolator = AccelerateDecelerateInterpolator()
+                this.startDelay = startDelay
+            }
+            return AnimatorSet().apply { playTogether(scaleX, scaleY, alpha) }
+        }
 
-        // Call Gemini API
-        callGeminiApi()
-    }
-
-    private fun callGeminiApi() {
-        if (GeminiApi.apiKey.isBlank()) {
-            restoreInputState()
-
-            addModelMessage(
-                "Chưa cấu hình Gemini API key. Hãy thêm GEMINI_API_KEY vào gradle.properties rồi build lại app.",
-                isError = true
+        typingAnimatorSet = AnimatorSet().apply {
+            playTogether(
+                createPulse(dot1, 0),
+                createPulse(dot2, 150),
+                createPulse(dot3, 300)
             )
-            return
-        }
-
-        // Build conversation history for context
-        val contents = mutableListOf<GeminiContent>()
-
-        // System instruction as first user message
-        contents.add(GeminiContent("user", listOf(GeminiPart(systemPrompt))))
-        contents.add(GeminiContent("model", listOf(GeminiPart("Understood! I'm Sparkle, ready to help with cleaning questions."))))
-
-        // Add conversation history (last 10 messages for context)
-        val historyStart = maxOf(0, messages.size - 10)
-        for (i in historyStart until messages.size) {
-            val msg = messages[i]
-            contents.add(GeminiContent(msg.role, listOf(GeminiPart(msg.text))))
-        }
-
-        val request = GeminiRequest(contents)
-        requestGeminiWithFallback(request, GeminiApi.MODEL_CANDIDATES, 0)
-    }
-
-    private fun requestGeminiWithFallback(
-        request: GeminiRequest,
-        models: List<String>,
-        index: Int
-    ) {
-        val model = models.getOrNull(index)
-        if (model == null) {
-            restoreInputState()
-            addModelMessage(
-                "Khong tim thay model Gemini kha dung. Da thu: ${models.joinToString()}.",
-                isError = true
-            )
-            return
-        }
-
-        GeminiApi.service.generateContent(model, GeminiApi.apiKey, request)
-            .enqueue(object : Callback<GeminiResponse> {
-                override fun onResponse(call: Call<GeminiResponse>, response: Response<GeminiResponse>) {
-                    if (response.isSuccessful) {
-                        restoreInputState()
-                        val responseText = response.body()
-                            ?.candidates
-                            ?.firstOrNull()
-                            ?.content
-                            ?.parts
-                            ?.firstOrNull()
-                            ?.text
-                            ?: "I couldn't generate a response. Please try again."
-
-                        addModelMessage(responseText)
-                    } else if (response.code() == 404 && index < models.lastIndex) {
-                        requestGeminiWithFallback(request, models, index + 1)
-                    } else {
-                        restoreInputState()
-                        addModelMessage(parseGeminiError(response, model), isError = true)
-                    }
-                }
-
-                override fun onFailure(call: Call<GeminiResponse>, t: Throwable) {
-                    restoreInputState()
-
-                    addModelMessage(
-                        "Không thể kết nối tới máy chủ AI: ${t.localizedMessage ?: "unknown error"}",
-                        isError = true
-                    )
-                }
-            })
-    }
-
-    private fun restoreInputState() {
-        typingIndicator.visibility = View.GONE
-        btnSend.isEnabled = true
-        etMessage.isEnabled = true
-    }
-
-    private fun addModelMessage(text: String, isError: Boolean = false) {
-        messages.add(SmartMessage("model", text, isError))
-        adapter.notifyItemInserted(messages.size - 1)
-        scrollToBottom()
-    }
-
-    private fun parseGeminiError(response: Response<GeminiResponse>, attemptedModel: String): String {
-        val statusCode = response.code()
-        val rawBody = try {
-            response.errorBody()?.string()
-        } catch (_: Exception) {
-            null
-        }
-
-        val apiMessage = parseApiMessage(rawBody)
-
-        return when (statusCode) {
-            400 -> "Yeu cau khong hop le (400). ${apiMessage ?: "Kiem tra model/du lieu gui len."}"
-            401 -> "API key khong hop le (401). Kiem tra GEMINI_API_KEY."
-            403 -> "API key bi tu choi (403). Thuong do chua bat Gemini API hoac bi gioi han key."
-            404 -> "Khong tim thay model Gemini ($attemptedModel)."
-            429 -> "Da vuot gioi han su dung (429). Hay thu lai sau hoac kiem tra quota."
-            else -> "Loi Gemini HTTP $statusCode. ${apiMessage ?: "Khong co them chi tiet."}"
+            start()
         }
     }
 
-    private fun parseApiMessage(rawBody: String?): String? {
-        if (rawBody.isNullOrBlank()) return null
-        return try {
-            JSONObject(rawBody).optJSONObject("error")?.optString("message")
-        } catch (_: Exception) {
-            null
-        }
+    private fun stopTypingAnimation() {
+        typingAnimatorSet?.cancel()
+        typingAnimatorSet = null
     }
 
-    private fun scrollToBottom() {
-        rvMessages.scrollToPosition(messages.size - 1)
+    override fun onDestroy() {
+        super.onDestroy()
+        stopTypingAnimation()
     }
 }
